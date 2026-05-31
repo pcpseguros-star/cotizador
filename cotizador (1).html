@@ -270,8 +270,12 @@ const PLANES_INFO = {
   '8':  { nombre: 'RC + Incendio + Robo Total/Parcial', destacado: false },
   '7':  { nombre: 'RC + Incendio + Robo Total',         destacado: false },
   '4':  { nombre: 'Responsabilidad Civil',               destacado: false },
+  '40': { nombre: 'Todo Riesgo con Franquicia',         destacado: false },
+  '43': { nombre: 'Todo Riesgo Franquicia Fija',        destacado: false },
+  '30': { nombre: 'Todo Riesgo Franq. 2% Variable',     destacado: false },
+  '20': { nombre: 'Todo Riesgo Franq. 1% Variable',     destacado: false },
 };
-const ORDEN_PLANES = ['22','2','1','8','7','4'];
+const ORDEN_PLANES = ['22','2','1','8','7','4','40','43','30','20'];
 
 function normalizarPlanes(data) {
   // Caso 1: data es un array directo de planes
@@ -295,10 +299,11 @@ function normalizarPlanes(data) {
 }
 
 function mostrarResultados(data) {
-  // Log para debug — podés ver la estructura en consola del browser
-  console.log('[PCP Cotizador] Respuesta recibida:', JSON.stringify(data));
   const { marcaDesc, modeloDesc, anio } = _cotizacionActual;
-  const bienTexto = data.bien || (marcaDesc + ' ' + modeloDesc + ' ' + anio);
+  // La API devuelve el nombre del bien en bienesCotizados[0].bien
+  const bienAPI = (data.bienesCotizados && data.bienesCotizados[0] && data.bienesCotizados[0].bien)
+    ? data.bienesCotizados[0].bien.trim() : '';
+  const bienTexto = bienAPI || data.bien || (marcaDesc + ' ' + modeloDesc + ' ' + anio);
   document.getElementById('bien-desc').textContent = bienTexto;
   document.getElementById('cotiz-info').textContent =
     (data.numeroCotizacion ? 'Cotización Nº ' + data.numeroCotizacion + ' · ' : '') + (data.fechaCotizacion || '');
@@ -311,8 +316,11 @@ function mostrarResultados(data) {
     const plan = planesMap[planId];
     if (!plan) return;
     const info  = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
-    // Provincia puede devolver el monto en distintos campos
-    const monto = parseFloat(plan.premio || plan.Premio || plan.monto || plan.importe || plan.valor || plan.price || 0);
+    // El premio está dentro de promocionesPorPlan[0]
+    const promo = (plan.promocionesPorPlan && plan.promocionesPorPlan[0]) || {};
+    const monto = parseFloat(promo.premio || plan.premio || plan.monto || 0);
+    const vigencia = promo.vigencia || plan.vigencia || '';
+    const vigenciaTexto = vigencia.includes('MENSUAL') ? 'Mensual Ref. Anual' : (vigencia || 'Mensual Ref. Anual');
     const montoFormateado = monto > 0
       ? '$' + Math.round(monto).toLocaleString('es-AR')
       : 'Consultar';
@@ -322,7 +330,10 @@ function mostrarResultados(data) {
       '<div class="plan-info">' +
         (info.destacado ? '<span class="plan-badge">⭐ Más completo</span>' : '') +
         '<div class="plan-nombre">' + info.nombre + '</div>' +
-        '<div class="plan-vigencia">' + (plan.vigencia || 'Mensual Ref. Anual') + '</div>' +
+        (plan.descripcionAdicional && plan.descripcionAdicional.trim()
+          ? '<div class="plan-vigencia" style="color:#888;font-size:11px;">' + plan.descripcionAdicional.trim() + '</div>'
+          : '') +
+        '<div class="plan-vigencia">' + vigenciaTexto + '</div>' +
       '</div>' +
       '<div class="plan-precio">' +
         '<div class="plan-monto">' + montoFormateado + '</div>' +
