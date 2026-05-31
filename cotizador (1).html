@@ -174,7 +174,7 @@ async function cargarMarcas() {
       body: JSON.stringify({ accion: 'obtenerMarcas' })
     });
     const data = await res.json();
-    _marcasData = (data.marcas || []).sort((a, b) => a.descripcion.localeCompare(b.descripcion));
+    _marcasData = (Array.isArray(data) ? data : (data.marcas || [])).sort((a, b) => a.descripcion.localeCompare(b.descripcion));
     const sel = document.getElementById('sel-marca');
     sel.innerHTML = '<option value="">Elegí una marca</option>';
     _marcasData.forEach(m => {
@@ -212,7 +212,7 @@ async function cargarModelos() {
       body: JSON.stringify({ accion: 'obtenerModelos', marca, anio })
     });
     const data = await res.json();
-    _modelosData = data.modelos || [];
+    _modelosData = Array.isArray(data) ? data : (data.modelos || []);
     sel.innerHTML = '<option value="">Elegí un modelo</option>';
     _modelosData.forEach(m => {
       const o = document.createElement('option');
