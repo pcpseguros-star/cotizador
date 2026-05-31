@@ -273,21 +273,49 @@ const PLANES_INFO = {
 };
 const ORDEN_PLANES = ['22','2','1','8','7','4'];
 
+function normalizarPlanes(data) {
+  // Caso 1: data es un array directo de planes
+  if (Array.isArray(data)) return data;
+  // Caso 2: data.planes es un array
+  if (Array.isArray(data.planes)) return data.planes;
+  // Caso 3: data.planes es un objeto { "22": {...}, "2": {...} }
+  if (data.planes && typeof data.planes === 'object') {
+    return Object.entries(data.planes).map(([k, v]) => ({ plan: k, ...v }));
+  }
+  // Caso 4: data es un objeto con claves numéricas (objeto de planes directo)
+  if (data && typeof data === 'object') {
+    const posiblesPlanes = Object.entries(data).filter(([k, v]) =>
+      ORDEN_PLANES.includes(k) && typeof v === 'object'
+    );
+    if (posiblesPlanes.length > 0) {
+      return posiblesPlanes.map(([k, v]) => ({ plan: k, ...v }));
+    }
+  }
+  return [];
+}
+
 function mostrarResultados(data) {
+  // Log para debug — podés ver la estructura en consola del browser
+  console.log('[PCP Cotizador] Respuesta recibida:', JSON.stringify(data));
   const { marcaDesc, modeloDesc, anio } = _cotizacionActual;
   const bienTexto = data.bien || (marcaDesc + ' ' + modeloDesc + ' ' + anio);
   document.getElementById('bien-desc').textContent = bienTexto;
   document.getElementById('cotiz-info').textContent =
     (data.numeroCotizacion ? 'Cotización Nº ' + data.numeroCotizacion + ' · ' : '') + (data.fechaCotizacion || '');
+  const planes = normalizarPlanes(data);
   const planesMap = {};
-  (data.planes || []).forEach(p => planesMap[p.plan] = p);
+  planes.forEach(p => planesMap[String(p.plan)] = p);
   const container = document.getElementById('planes-container');
   container.innerHTML = '';
   ORDEN_PLANES.forEach(planId => {
     const plan = planesMap[planId];
     if (!plan) return;
     const info  = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
-    const monto = parseInt(plan.premio || 0);
+    // Provincia puede devolver el monto en distintos campos
+    const monto = parseFloat(plan.premio || plan.Premio || plan.monto || plan.importe || plan.valor || plan.price || 0);
+    const montoFormateado = monto > 0
+      ? '$' + Math.round(monto).toLocaleString('es-AR')
+      : 'Consultar';
     const div = document.createElement('div');
     div.className = 'plan-card' + (info.destacado ? ' destacado' : '');
     div.innerHTML =
@@ -297,7 +325,7 @@ function mostrarResultados(data) {
         '<div class="plan-vigencia">' + (plan.vigencia || 'Mensual Ref. Anual') + '</div>' +
       '</div>' +
       '<div class="plan-precio">' +
-        '<div class="plan-monto">$' + monto.toLocaleString('es-AR') + '</div>' +
+        '<div class="plan-monto">' + montoFormateado + '</div>' +
         '<div class="plan-periodo">por mes</div>' +
         '<button class="btn-interes" onclick="expresarInteres(\'' + planId + '\',\'' +
           info.nombre.replace(/'/g,'') + '\',' + monto + ')">Me interesa</button>' +
