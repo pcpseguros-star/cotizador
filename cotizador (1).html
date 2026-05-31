@@ -4,53 +4,81 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cotizá tu seguro de auto | PCP Asesores de Seguros</title>
-  <meta name="description" content="Cotizá tu seguro de auto online con Provincia Seguros. Resultado instantáneo, sin dejar datos personales." />
+  <meta name="description" content="Cotizá tu seguro de auto online. Resultado instantáneo, sin dejar datos personales." />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f7f7f5; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem 4rem; }
     .wrap { max-width: 560px; margin: 0 auto; }
-    .header { text-align: center; margin-bottom: 2rem; }
-    .header-brand { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: #0F6E56; text-transform: uppercase; margin-bottom: 8px; }
+
+    .header { text-align: center; margin-bottom: 1.5rem; }
+    .header-brand { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #185FA5; text-transform: uppercase; margin-bottom: 8px; }
     .header-title { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; line-height: 1.2; }
     .header-sub { font-size: 14px; color: #5f5e5a; }
+
+    .companias-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+    .compania-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e6; padding: 12px 8px; text-align: center; }
+    .compania-icono { width: 38px; height: 38px; border-radius: 9px; margin: 0 auto 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+    .compania-icono.galicia { background: #FFF3E8; color: #854F0B; }
+    .compania-icono.provincia { background: #EBF3FC; color: #0C447C; }
+    .compania-icono.fedpat { background: #EBF4FD; color: #0C447C; font-size: 11px; }
+    .compania-nombre { font-size: 10px; font-weight: 600; color: #5f5e5a; line-height: 1.35; }
+
     .card { background: #fff; border-radius: 16px; border: 1px solid #e8e8e6; padding: 1.75rem; margin-bottom: 1rem; }
     .field { margin-bottom: 1.25rem; }
     .field:last-child { margin-bottom: 0; }
     .field label { display: block; font-size: 13px; font-weight: 500; color: #5f5e5a; margin-bottom: 6px; }
     .field input, .field select { width: 100%; padding: 11px 14px; border: 1px solid #d3d1c7; border-radius: 10px; font-size: 15px; color: #1a1a1a; background: #fff; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; outline: none; }
     .field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f5e5a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 40px; }
-    .field input:focus, .field select:focus { border-color: #0F6E56; box-shadow: 0 0 0 3px rgba(15,110,86,0.1); }
+    .field input:focus, .field select:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
     .field input::placeholder { color: #b4b2a9; }
     .field input:disabled, .field select:disabled { background: #f7f7f5; color: #b4b2a9; cursor: not-allowed; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn-primary { width: 100%; padding: 14px; background: #0F6E56; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.15s, transform 0.1s; }
-    .btn-primary:hover { background: #085041; }
+
+    .btn-primary { width: 100%; padding: 14px; background: #185FA5; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 0.75rem; transition: background 0.15s, transform 0.1s; }
+    .btn-primary:hover { background: #0C447C; }
     .btn-primary:active { transform: scale(0.99); }
     .btn-primary:disabled { background: #d3d1c7; color: #888; cursor: not-allowed; }
+
     .step { display: none; }
     .step.active { display: block; }
-    .loading-box { text-align: center; padding: 3rem 1rem; }
-    .spinner { width: 36px; height: 36px; border: 3px solid #e8e8e6; border-top-color: #0F6E56; border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 1.25rem; }
+
+    .loading-box { text-align: center; padding: 2.5rem 1rem; }
+    .loading-logos { display: flex; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
+    .loading-logo { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; border: 1px solid #e8e8e6; }
+    .loading-logo.galicia { background: #FFF3E8; color: #854F0B; }
+    .loading-logo.provincia { background: #EBF3FC; color: #0C447C; }
+    .loading-logo.fedpat { background: #EBF4FD; color: #0C447C; font-size: 11px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid #e8e8e6; border-top-color: #185FA5; border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 1.25rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .loading-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; }
     .loading-sub { font-size: 13px; color: #5f5e5a; }
+
     .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 14px; color: #991b1b; font-size: 13px; margin-top: 12px; line-height: 1.5; }
-    .bien-tag { text-align: center; font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
-    .cotiz-fecha { text-align: center; font-size: 12px; color: #b4b2a9; margin-bottom: 1.5rem; }
+
+    .resultado-header { text-align: center; margin-bottom: 1.25rem; }
+    .resultado-tag { display: inline-flex; align-items: center; gap: 6px; background: #EBF3FC; color: #0C447C; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; margin-bottom: 8px; border: 1px solid #B5D4F4; }
+    .resultado-tag svg { flex-shrink: 0; }
+    .bien-tag { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .cotiz-fecha { font-size: 12px; color: #b4b2a9; }
+
     .plan-card { background: #fff; border: 1px solid #e8e8e6; border-radius: 14px; padding: 1.1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: border-color 0.15s; }
-    .plan-card:hover { border-color: #9FE1CB; }
-    .plan-card.destacado { border: 2px solid #0F6E56; background: #fafffe; }
+    .plan-card:hover { border-color: #B5D4F4; }
+    .plan-card.destacado { border: 2px solid #185FA5; background: #F5F9FE; }
     .plan-info { flex: 1; min-width: 0; }
-    .plan-badge { display: inline-block; font-size: 11px; font-weight: 600; background: #E1F5EE; color: #085041; padding: 3px 9px; border-radius: 20px; margin-bottom: 5px; }
+    .plan-badge { display: inline-block; font-size: 11px; font-weight: 600; background: #EBF3FC; color: #0C447C; padding: 3px 9px; border-radius: 20px; margin-bottom: 5px; }
     .plan-nombre { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; line-height: 1.3; }
     .plan-vigencia { font-size: 12px; color: #5f5e5a; }
+    .plan-promo { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; background: #FFF3E8; color: #854F0B; padding: 2px 8px; border-radius: 20px; margin-top: 4px; border: 1px solid #FFD9B0; }
     .plan-precio { text-align: right; min-width: 120px; }
-    .plan-monto { font-size: 22px; font-weight: 700; color: #0F6E56; line-height: 1.1; }
+    .plan-monto { font-size: 22px; font-weight: 700; color: #185FA5; line-height: 1.1; }
+    .plan-monto-tachado { font-size: 13px; color: #b4b2a9; text-decoration: line-through; margin-bottom: 1px; }
     .plan-periodo { font-size: 11px; color: #5f5e5a; margin-top: 2px; }
-    .btn-interes { margin-top: 8px; width: 100%; padding: 7px; background: #0F6E56; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-    .btn-interes:hover { background: #085041; }
+    .btn-interes { margin-top: 8px; width: 100%; padding: 7px; background: #185FA5; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-interes:hover { background: #0C447C; }
+
     .nueva-link { display: block; text-align: center; font-size: 13px; color: #5f5e5a; margin-top: 1.25rem; cursor: pointer; text-decoration: underline; }
-    .nueva-link:hover { color: #0F6E56; }
+    .nueva-link:hover { color: #185FA5; }
+
     .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: #25D366; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 1rem 0 0.5rem; text-decoration: none; transition: background 0.15s; }
     .btn-whatsapp:hover { background: #1ebe5d; }
     .btn-whatsapp svg { flex-shrink: 0; }
@@ -58,16 +86,21 @@
     .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e8e8e6; }
     .form-label { display: block; font-size: 13px; font-weight: 500; color: #5f5e5a; margin-bottom: 6px; text-align: left; }
     .form-input { width: 100%; padding: 11px 14px; border: 1px solid #d3d1c7; border-radius: 10px; font-size: 15px; color: #1a1a1a; background: #fff; outline: none; margin-bottom: 10px; transition: border-color 0.15s; box-sizing: border-box; }
-    .form-input:focus { border-color: #0F6E56; box-shadow: 0 0 0 3px rgba(15,110,86,0.1); }
-    .btn-enviar { width: 100%; padding: 14px; background: #0F6E56; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-    .btn-enviar:hover { background: #085041; }
+    .form-input:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.1); }
+    .btn-enviar { width: 100%; padding: 14px; background: #185FA5; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-enviar:hover { background: #0C447C; }
     .btn-enviar:disabled { background: #d3d1c7; cursor: not-allowed; }
+
     .confirm-box { text-align: center; padding: 2rem 1rem; }
     .confirm-icon { font-size: 48px; margin-bottom: 1rem; }
     .confirm-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
     .confirm-sub { font-size: 14px; color: #5f5e5a; line-height: 1.6; max-width: 360px; margin: 0 auto 1.5rem; }
+
     .footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #b4b2a9; }
     .footer a { color: #b4b2a9; }
+
+    .accent-bar { height: 3px; border-radius: 2px; background: linear-gradient(90deg, #F07820 0%, #185FA5 50%, #1679B0 100%); margin-bottom: 1.75rem; border-radius: 3px; }
+
     @media (max-width: 480px) {
       body { padding: 1rem 0.75rem 3rem; }
       .card { padding: 1.25rem; border-radius: 14px; }
@@ -82,6 +115,8 @@
 <body>
 <div class="wrap">
 
+  <div class="accent-bar"></div>
+
   <div class="header">
     <div class="header-brand">PCP Asesores de Seguros</div>
     <h1 class="header-title">Cotizá tu seguro de auto</h1>
@@ -90,6 +125,22 @@
 
   <!-- STEP 1: Formulario -->
   <div class="step active" id="step1">
+
+    <div class="companias-row">
+      <div class="compania-card">
+        <div class="compania-icono galicia">G</div>
+        <div class="compania-nombre">Galicia<br>Seguros</div>
+      </div>
+      <div class="compania-card">
+        <div class="compania-icono provincia">P</div>
+        <div class="compania-nombre">Provincia<br>Seguros</div>
+      </div>
+      <div class="compania-card">
+        <div class="compania-icono fedpat">FP</div>
+        <div class="compania-nombre">Federación<br>Patronal</div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="field">
         <label for="inp-nombre">Tu nombre</label>
@@ -121,21 +172,34 @@
   <!-- STEP 2: Loading -->
   <div class="step" id="step2">
     <div class="card loading-box">
+      <div class="loading-logos">
+        <div class="loading-logo galicia">G</div>
+        <div class="loading-logo provincia">P</div>
+        <div class="loading-logo fedpat">FP</div>
+      </div>
       <div class="spinner"></div>
-      <div class="loading-title" id="loading-msg">Consultando precios...</div>
-      <div class="loading-sub">Estamos consultando Provincia Seguros</div>
+      <div class="loading-title">Buscando la mejor opción para tu vehículo...</div>
+      <div class="loading-sub">Estamos comparando coberturas y precios entre nuestras compañías</div>
     </div>
   </div>
 
   <!-- STEP 3: Resultados -->
   <div class="step" id="step3">
-    <div class="bien-tag" id="bien-desc"></div>
-    <div class="cotiz-fecha" id="cotiz-info"></div>
+    <div class="resultado-header">
+      <div>
+        <span class="resultado-tag">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Encontramos la mejor opción · Provincia Seguros
+        </span>
+      </div>
+      <div class="bien-tag" id="bien-desc"></div>
+      <div class="cotiz-fecha" id="cotiz-info"></div>
+    </div>
     <div id="planes-container"></div>
     <span class="nueva-link" onclick="nuevaCotizacion()">← Cotizar otro vehículo</span>
   </div>
 
-  <!-- STEP 4: Opciones de contacto -->
+  <!-- STEP 4: Opciones de contacto — SIN CAMBIOS -->
   <div class="step" id="step4">
     <div class="card">
       <div class="confirm-box">
@@ -175,15 +239,12 @@
 </div>
 
 <script>
-// ─── CONFIGURACIÓN ───────────────────────────────────────────────
 const WEBHOOK_MAKE = 'https://hook.us2.make.com/7vs5xcraexlcvvl1chzq2ajoxcbymxnz';
 
-// ─── ESTADO ──────────────────────────────────────────────────────
 let _marcasData = [];
 let _modelosData = [];
 let _cotizacionActual = {};
 
-// ─── UTILIDADES ──────────────────────────────────────────────────
 function showStep(n) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('step' + n).classList.add('active');
@@ -195,7 +256,6 @@ function setError(msg) {
     ? '<div class="error-box">' + msg + '</div>' : '';
 }
 
-// ─── CARGA DE MARCAS Y AÑOS ──────────────────────────────────────
 async function cargarMarcas() {
   try {
     const res = await fetch(WEBHOOK_MAKE, {
@@ -259,7 +319,6 @@ async function cargarModelos() {
 document.getElementById('sel-marca').addEventListener('change', cargarModelos);
 document.getElementById('sel-anio').addEventListener('change', cargarModelos);
 
-// ─── COTIZACIÓN ──────────────────────────────────────────────────
 async function iniciarCotizacion() {
   const nombre = document.getElementById('inp-nombre').value.trim();
   const marca  = document.getElementById('sel-marca').value;
@@ -292,7 +351,6 @@ async function iniciarCotizacion() {
   }
 }
 
-// ─── RESULTADOS ──────────────────────────────────────────────────
 const PLANES_INFO = {
   '22': { nombre: 'Terceros Completos Full',            destacado: true  },
   '2':  { nombre: 'Terceros Completos',                 destacado: false },
@@ -308,15 +366,11 @@ const PLANES_INFO = {
 const ORDEN_PLANES = ['22','2','1','8','7','4','40','43','30','20'];
 
 function normalizarPlanes(data) {
-  // Caso 1: data es un array directo de planes
   if (Array.isArray(data)) return data;
-  // Caso 2: data.planes es un array
   if (Array.isArray(data.planes)) return data.planes;
-  // Caso 3: data.planes es un objeto { "22": {...}, "2": {...} }
   if (data.planes && typeof data.planes === 'object') {
     return Object.entries(data.planes).map(([k, v]) => ({ plan: k, ...v }));
   }
-  // Caso 4: data es un objeto con claves numéricas (objeto de planes directo)
   if (data && typeof data === 'object') {
     const posiblesPlanes = Object.entries(data).filter(([k, v]) =>
       ORDEN_PLANES.includes(k) && typeof v === 'object'
@@ -328,44 +382,90 @@ function normalizarPlanes(data) {
   return [];
 }
 
+function obtenerMejorPromocion(plan) {
+  const promos = plan.promocionesPorPlan;
+  if (!promos || promos.length === 0) {
+    return {
+      monto: parseFloat(plan.premio || plan.monto || 0),
+      vigencia: plan.vigencia || '',
+      descuento: 0,
+      montoBase: 0
+    };
+  }
+  let mejorPromo = null;
+  let menorPremio = Infinity;
+  for (const p of promos) {
+    const premio = parseFloat(p.premio || 0);
+    if (premio > 0 && premio < menorPremio) {
+      menorPremio = premio;
+      mejorPromo = p;
+    }
+  }
+  if (!mejorPromo) mejorPromo = promos[0];
+  const monto = parseFloat(mejorPromo.premio || 0);
+  const vigencia = mejorPromo.vigencia || '';
+  let descuento = 0;
+  let montoBase = 0;
+  if (promos.length > 1) {
+    let mayorPremio = 0;
+    for (const p of promos) {
+      const premio = parseFloat(p.premio || 0);
+      if (premio > mayorPremio) mayorPremio = premio;
+    }
+    if (mayorPremio > 0 && monto < mayorPremio) {
+      descuento = Math.round((1 - monto / mayorPremio) * 100);
+      montoBase = mayorPremio;
+    }
+  }
+  return { monto, vigencia, descuento, montoBase };
+}
+
 function mostrarResultados(data) {
   const { marcaDesc, modeloDesc, anio } = _cotizacionActual;
-  // La API devuelve el nombre del bien en bienesCotizados[0].bien
   const bienAPI = (data.bienesCotizados && data.bienesCotizados[0] && data.bienesCotizados[0].bien)
     ? data.bienesCotizados[0].bien.trim() : '';
   const bienTexto = bienAPI || data.bien || (marcaDesc + ' ' + modeloDesc + ' ' + anio);
   document.getElementById('bien-desc').textContent = bienTexto;
   document.getElementById('cotiz-info').textContent =
     (data.numeroCotizacion ? 'Cotización Nº ' + data.numeroCotizacion + ' · ' : '') + (data.fechaCotizacion || '');
+
   const planes = normalizarPlanes(data);
   const planesMap = {};
   planes.forEach(p => planesMap[String(p.plan)] = p);
+
   const container = document.getElementById('planes-container');
   container.innerHTML = '';
+
   ORDEN_PLANES.forEach(planId => {
     const plan = planesMap[planId];
     if (!plan) return;
-    const info  = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
-    // El premio está dentro de promocionesPorPlan[0]
-    const promo = (plan.promocionesPorPlan && plan.promocionesPorPlan[0]) || {};
-    const monto = parseFloat(promo.premio || plan.premio || plan.monto || 0);
-    const vigencia = promo.vigencia || plan.vigencia || '';
+    const info = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
+    const { monto, vigencia, descuento, montoBase } = obtenerMejorPromocion(plan);
     const vigenciaTexto = vigencia.includes('MENSUAL') ? 'Mensual Ref. Anual' : (vigencia || 'Mensual Ref. Anual');
-    const montoFormateado = monto > 0
-      ? '$' + Math.round(monto).toLocaleString('es-AR')
-      : 'Consultar';
+    const montoFormateado = monto > 0 ? '$' + Math.round(monto).toLocaleString('es-AR') : 'Consultar';
+    const montoBaseFormateado = montoBase > 0 ? '$' + Math.round(montoBase).toLocaleString('es-AR') : '';
+
     const div = document.createElement('div');
     div.className = 'plan-card' + (info.destacado ? ' destacado' : '');
+
+    const badgeHTML = info.destacado ? '<span class="plan-badge">⭐ Más completo</span>' : '';
+    const descAdicHTML = (plan.descripcionAdicional && plan.descripcionAdicional.trim())
+      ? '<div class="plan-vigencia" style="color:#888;font-size:11px;">' + plan.descripcionAdicional.trim() + '</div>' : '';
+    const promoHTML = descuento > 0
+      ? '<div class="plan-promo">🏷 Promo aplicada · −' + descuento + '%</div>' : '';
+    const montoBaseHTML = (descuento > 0 && montoBaseFormateado)
+      ? '<div class="plan-monto-tachado">' + montoBaseFormateado + '</div>' : '';
+
     div.innerHTML =
       '<div class="plan-info">' +
-        (info.destacado ? '<span class="plan-badge">⭐ Más completo</span>' : '') +
+        badgeHTML +
         '<div class="plan-nombre">' + info.nombre + '</div>' +
-        (plan.descripcionAdicional && plan.descripcionAdicional.trim()
-          ? '<div class="plan-vigencia" style="color:#888;font-size:11px;">' + plan.descripcionAdicional.trim() + '</div>'
-          : '') +
+        descAdicHTML +
         '<div class="plan-vigencia">' + vigenciaTexto + '</div>' +
+        promoHTML +
       '</div>' +
       '<div class="plan-precio">' +
+        montoBaseHTML +
         '<div class="plan-monto">' + montoFormateado + '</div>' +
         '<div class="plan-periodo">por mes</div>' +
         '<button class="btn-interes" onclick="expresarInteres(\'' + planId + '\',\'' +
@@ -376,10 +476,8 @@ function mostrarResultados(data) {
   showStep(3);
 }
 
-// ─── INTERÉS ─────────────────────────────────────────────────────
 async function expresarInteres(planId, planDesc, monto) {
   const { nombre, marcaDesc, modeloDesc, anio, cp } = _cotizacionActual;
-  // Armar mensaje de WhatsApp
   const montoTexto = monto > 0 ? '$' + Math.round(monto).toLocaleString('es-AR') + '/mes' : '';
   const autoTexto = (marcaDesc + ' ' + modeloDesc + ' ' + anio).trim();
   const msg = '¡Hola Leandro! Cotizé el seguro para mi ' + autoTexto +
@@ -388,20 +486,17 @@ async function expresarInteres(planId, planDesc, monto) {
     '. ¿Podemos coordinar?';
   const waUrl = 'https://wa.me/5491123078263?text=' + encodeURIComponent(msg);
   document.getElementById('btn-whatsapp').href = waUrl;
-  // Pasar datos del plan al botón de formulario
   const btnEnviar = document.getElementById('btn-enviar-contacto');
   btnEnviar.dataset.planDesc = planDesc;
   btnEnviar.dataset.monto = monto;
   btnEnviar.disabled = false;
   btnEnviar.textContent = 'Que me llamen 📞';
-  // Resetear formulario
   document.getElementById('c-nombre').value = _cotizacionActual.nombre || '';
   document.getElementById('c-tel').value = '';
   document.getElementById('c-email').value = '';
   document.getElementById('error-contacto').innerHTML = '';
   document.getElementById('form-contacto').style.display = 'block';
   document.getElementById('form-enviado').style.display = 'none';
-  // Notificar a Make
   try {
     await fetch(WEBHOOK_MAKE, {
       method: 'POST',
@@ -415,7 +510,6 @@ async function expresarInteres(planId, planDesc, monto) {
   showStep(4);
 }
 
-// ─── FORMULARIO CONTACTO ─────────────────────────────────────────
 async function enviarContacto() {
   const nombre = document.getElementById('c-nombre').value.trim();
   const tel    = document.getElementById('c-tel').value.trim();
@@ -447,7 +541,6 @@ async function enviarContacto() {
   document.getElementById('form-enviado').style.display = 'block';
 }
 
-
 function nuevaCotizacion() {
   document.getElementById('inp-nombre').value = '';
   document.getElementById('inp-cp').value = '';
@@ -460,7 +553,6 @@ function nuevaCotizacion() {
   showStep(1);
 }
 
-// ─── INIT ────────────────────────────────────────────────────────
 cargarMarcas();
 cargarAnios();
 </script>
