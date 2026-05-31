@@ -54,6 +54,14 @@
     .btn-whatsapp { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: #25D366; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 1rem 0 0.5rem; text-decoration: none; transition: background 0.15s; }
     .btn-whatsapp:hover { background: #1ebe5d; }
     .btn-whatsapp svg { flex-shrink: 0; }
+    .divider { display: flex; align-items: center; gap: 10px; margin: 0.75rem 0; color: #b4b2a9; font-size: 13px; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e8e8e6; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: #5f5e5a; margin-bottom: 6px; text-align: left; }
+    .form-input { width: 100%; padding: 11px 14px; border: 1px solid #d3d1c7; border-radius: 10px; font-size: 15px; color: #1a1a1a; background: #fff; outline: none; margin-bottom: 10px; transition: border-color 0.15s; box-sizing: border-box; }
+    .form-input:focus { border-color: #0F6E56; box-shadow: 0 0 0 3px rgba(15,110,86,0.1); }
+    .btn-enviar { width: 100%; padding: 14px; background: #0F6E56; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-enviar:hover { background: #085041; }
+    .btn-enviar:disabled { background: #d3d1c7; cursor: not-allowed; }
     .confirm-box { text-align: center; padding: 2rem 1rem; }
     .confirm-icon { font-size: 48px; margin-bottom: 1rem; }
     .confirm-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
@@ -127,20 +135,36 @@
     <span class="nueva-link" onclick="nuevaCotizacion()">← Cotizar otro vehículo</span>
   </div>
 
-  <!-- STEP 4: Confirmación -->
+  <!-- STEP 4: Opciones de contacto -->
   <div class="step" id="step4">
     <div class="card">
       <div class="confirm-box">
         <div class="confirm-icon">✅</div>
-        <div class="confirm-title">¡Gracias por tu consulta!</div>
-        <p class="confirm-sub">Recibimos tu interés en el plan seleccionado. Podés escribirnos por WhatsApp ahora mismo o esperar que Leandro te contacte a la brevedad.</p>
+        <div class="confirm-title">¡Buen precio!</div>
+        <p class="confirm-sub">Elegí cómo querés que te contactemos para coordinar los detalles.</p>
         <a id="btn-whatsapp" class="btn-whatsapp" href="#" target="_blank">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Escribir por WhatsApp
+          Escribir por WhatsApp ahora
         </a>
-        <span class="nueva-link" onclick="nuevaCotizacion()">← Cotizar otro vehículo</span>
+        <div class="divider">o dejá tus datos</div>
+        <div id="form-contacto">
+          <label class="form-label" for="c-nombre">Tu nombre</label>
+          <input class="form-input" type="text" id="c-nombre" placeholder="Ej: Juan García" />
+          <label class="form-label" for="c-tel">Teléfono / WhatsApp</label>
+          <input class="form-input" type="tel" id="c-tel" placeholder="Ej: 11 2345-6789" />
+          <label class="form-label" for="c-email">Email (opcional)</label>
+          <input class="form-input" type="email" id="c-email" placeholder="Ej: juan@gmail.com" />
+          <div id="error-contacto"></div>
+          <button class="btn-enviar" id="btn-enviar-contacto" onclick="enviarContacto()">Que me llamen 📞</button>
+        </div>
+        <div id="form-enviado" style="display:none; margin-top:1rem;">
+          <div style="font-size:32px; margin-bottom:8px;">🎉</div>
+          <div style="font-weight:700; font-size:16px; margin-bottom:6px;">¡Listo! Te contactamos pronto.</div>
+          <div style="font-size:13px; color:#5f5e5a;">Leandro te va a escribir a la brevedad para coordinar tu póliza.</div>
+        </div>
       </div>
     </div>
+    <span class="nueva-link" onclick="nuevaCotizacion()">← Cotizar otro vehículo</span>
   </div>
 
   <div class="footer">
@@ -364,6 +388,19 @@ async function expresarInteres(planId, planDesc, monto) {
     '. ¿Podemos coordinar?';
   const waUrl = 'https://wa.me/5491123078263?text=' + encodeURIComponent(msg);
   document.getElementById('btn-whatsapp').href = waUrl;
+  // Pasar datos del plan al botón de formulario
+  const btnEnviar = document.getElementById('btn-enviar-contacto');
+  btnEnviar.dataset.planDesc = planDesc;
+  btnEnviar.dataset.monto = monto;
+  btnEnviar.disabled = false;
+  btnEnviar.textContent = 'Que me llamen 📞';
+  // Resetear formulario
+  document.getElementById('c-nombre').value = _cotizacionActual.nombre || '';
+  document.getElementById('c-tel').value = '';
+  document.getElementById('c-email').value = '';
+  document.getElementById('error-contacto').innerHTML = '';
+  document.getElementById('form-contacto').style.display = 'block';
+  document.getElementById('form-enviado').style.display = 'none';
   // Notificar a Make
   try {
     await fetch(WEBHOOK_MAKE, {
@@ -378,7 +415,39 @@ async function expresarInteres(planId, planDesc, monto) {
   showStep(4);
 }
 
-// ─── RESET ───────────────────────────────────────────────────────
+// ─── FORMULARIO CONTACTO ─────────────────────────────────────────
+async function enviarContacto() {
+  const nombre = document.getElementById('c-nombre').value.trim();
+  const tel    = document.getElementById('c-tel').value.trim();
+  const email  = document.getElementById('c-email').value.trim();
+  const errDiv = document.getElementById('error-contacto');
+  errDiv.innerHTML = '';
+  if (!nombre || !tel) {
+    errDiv.innerHTML = '<div class="error-box">Por favor completá nombre y teléfono.</div>';
+    return;
+  }
+  const btn = document.getElementById('btn-enviar-contacto');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  const { marcaDesc, modeloDesc, anio, cp } = _cotizacionActual;
+  const planDesc = btn.dataset.planDesc || '';
+  const monto    = btn.dataset.monto || '';
+  try {
+    await fetch(WEBHOOK_MAKE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accion: 'contacto', nombre, tel, email,
+        marca: marcaDesc, modelo: modeloDesc, anio, cp,
+        planDesc, monto, fecha: new Date().toISOString()
+      })
+    });
+  } catch(e) {}
+  document.getElementById('form-contacto').style.display = 'none';
+  document.getElementById('form-enviado').style.display = 'block';
+}
+
+
 function nuevaCotizacion() {
   document.getElementById('inp-nombre').value = '';
   document.getElementById('inp-cp').value = '';
