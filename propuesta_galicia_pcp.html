@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propuesta Galicia Seguros — PCP Asesores de Seguros</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F3;color:#1a1a1a}
+.hero{background:#0C447C;color:white;padding:2.5rem 2rem 2rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.05)}
+.hero::after{content:'';position:absolute;right:40px;top:40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.05)}
+.h-badge{display:inline-block;background:#F07820;color:white;font-size:11px;font-weight:600;padding:4px 14px;border-radius:20px;margin-bottom:12px;letter-spacing:0.5px}
+.hero h1{font-size:22px;font-weight:600;color:white;margin-bottom:8px;line-height:1.35}
+.hero p{font-size:13px;color:rgba(255,255,255,0.75);max-width:520px;line-height:1.65}
+.h-auto{display:inline-block;margin-top:14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:white;font-size:12px;padding:6px 16px;border-radius:20px}
+.h-stats{margin-top:1.5rem;display:flex;gap:2rem;flex-wrap:wrap;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.12)}
+.h-stat .num{font-size:21px;font-weight:700;color:#F07820}
+.h-stat .lbl{font-size:11px;color:rgba(255,255,255,0.55);margin-top:1px}
+.nav{background:#fff;border-bottom:1px solid #e5e5e5;padding:0 1.5rem;display:flex;overflow-x:auto}
+.nb{background:none;border:none;border-bottom:2.5px solid transparent;padding:14px 16px;font-size:12px;font-weight:500;color:#666;cursor:pointer;white-space:nowrap;font-family:inherit;transition:color 0.15s}
+.nb.on{color:#0C447C;border-bottom-color:#F07820}
+.nb:hover:not(.on){color:#1a1a1a}
+.cnt{padding:1.75rem 1.5rem;max-width:780px;margin:0 auto}
+.sec{display:none}
+.sec.on{display:block}
+.st{font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:5px}
+.ss{font-size:13px;color:#555;margin-bottom:1.5rem;line-height:1.65}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+@media(max-width:520px){.cg{grid-template-columns:1fr}}
+.cc{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem 1.1rem}
+.cc.pcp{border:2px solid #F07820}
+.cl{font-size:11px;font-weight:600;color:#888;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+.cl.o{color:#F07820}
+.ci{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:13px;color:#1a1a1a;line-height:1.5}
+.ci i{margin-top:2px;flex-shrink:0;font-size:15px}
+.ok{color:#1D9E75}.bad{color:#E24B4A}.mid{color:#BA7517}
+.mr{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem}
+.mc{background:#f0f0ee;border-radius:8px;padding:1rem}
+.mv{font-size:21px;font-weight:700;color:#0C447C}
+.mv.o{color:#F07820}
+.ml{font-size:12px;color:#666;margin-top:3px}
+.em{background:#fff;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.eh{background:#f7f7f5;padding:10px 16px;border-bottom:1px solid #e5e5e5}
+.ef{font-size:12px;color:#777}
+.es{font-size:13px;font-weight:600;color:#1a1a1a;margin-top:2px}
+.eb{padding:16px;font-size:13px;color:#1a1a1a;line-height:1.75}
+.ebox{background:#f7f7f5;border:1px solid #e5e5e5;border-radius:8px;padding:10px 14px;margin:12px 0;font-size:12px}
+.eamt{color:#E24B4A;font-size:15px;font-weight:700}
+.ebtn{display:inline-block;background:#0C447C;color:white;padding:9px 20px;border-radius:8px;font-size:13px;margin:10px 0;font-weight:600;text-decoration:none}
+.ewarn{background:#FFF8E0;border-left:3px solid #F07820;padding:9px 13px;border-radius:0 8px 8px 0;margin:12px 0;font-size:12px;color:#6b4500}
+.einfo{background:#E6F1FB;border-left:3px solid #0C447C;padding:9px 13px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;color:#042C53}
+.esec{font-size:13px;font-weight:600;color:#1a1a1a;margin:14px 0 5px}
+.esig{font-size:12px;color:#777;margin-top:14px;padding-top:12px;border-top:1px solid #e5e5e5;line-height:1.7}
+.fl{list-style:none;margin-bottom:1.5rem}
+.fi{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid #e5e5e5}
+.fi:last-child{border-bottom:none}
+.fn{width:26px;height:26px;border-radius:50%;background:#0C447C;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fn.o{background:#F07820}
+.ft{flex:1}
+.ftt{font-size:13px;font-weight:600;color:#1a1a1a}
+.ftd{font-size:12px;color:#555;line-height:1.6;margin-top:3px}
+.div{height:1px;background:#e5e5e5;margin:1.5rem 0}
+.fn2{font-size:12px;color:#555;background:#f0f0ee;border-radius:8px;padding:10px 14px;line-height:1.6}
+.auto-badge{background:#EAF3DE;color:#27500A;font-size:11px;font-weight:600;padding:5px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin-bottom:1.25rem}
+.galicia-badge{display:inline-flex;align-items:center;gap:6px;background:#E6F1FB;color:#0C447C;font-size:11px;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:1.25rem}
+.win-card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1rem 1.1rem;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.win-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.wi-b{background:#E6F1FB;color:#0C447C}
+.wi-o{background:#FFF3E0;color:#F07820}
+.wi-g{background:#EAF3DE;color:#3B6D11}
+.win-title{font-size:13px;font-weight:600;color:#1a1a1a}
+.win-desc{font-size:12px;color:#555;line-height:1.55;margin-top:3px}
+.prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem}
+@media(max-width:520px){.prop-grid{grid-template-columns:1fr}}
+.prop-card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:1.25rem}
+.prop-card.feat{border:2px solid #F07820}
+.prop-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px}
+.prop-title{font-size:14px;font-weight:600;color:#1a1a1a}
+.prop-price{font-size:19px;font-weight:700;color:#F07820;white-space:nowrap}
+.prop-price span{font-size:11px;color:#888;font-weight:400;display:block;text-align:right}
+.prop-desc{font-size:12px;color:#555;line-height:1.6;margin-bottom:12px}
+.prop-items{list-style:none}
+.prop-items li{font-size:12px;color:#1a1a1a;padding:4px 0;display:flex;gap:8px;align-items:flex-start}
+.prop-items li i{flex-shrink:0;margin-top:1px;font-size:14px}
+.cta-block{background:#0C447C;border-radius:12px;padding:1.75rem;text-align:center;margin-top:1.5rem}
+.cta-block p{color:rgba(255,255,255,0.8);font-size:13px;margin-bottom:14px;line-height:1.65}
+.cta-name{color:white;font-size:16px;font-weight:700;margin-bottom:4px}
+.cta-data{color:rgba(255,255,255,0.7);font-size:13px;line-height:1.9}
+.cta-mat{color:#F07820;font-size:11px;margin-top:8px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="h-badge">Propuesta exclusiva para Galicia Seguros</span>
+  <h1>Ecosistema de automatización<br>para productores Plata y Oro</h1>
+  <p>Una propuesta para elevar la experiencia del asegurado en el canal de distribución — sin cambiar prima, cobertura ni estructura. Solo el servicio.</p>
+  <div class="h-auto">⚡ Todo lo que se muestra funciona de manera autónoma — sin intervención del productor</div>
+  <div class="h-stats">
+    <div class="h-stat"><div class="num">300+</div><div class="lbl">clientes activos en producción</div></div>
+    <div class="h-stat"><div class="num">3</div><div class="lbl">compañías integradas</div></div>
+    <div class="h-stat"><div class="num">−10hs</div><div class="lbl">trabajo operativo ahorrado/semana</div></div>
+    <div class="h-stat"><div class="num">~100 USD</div><div class="lbl">costo mensual total</div></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb on" onclick="st('cotizador',this)">Cotizador</button>
+  <button class="nb" onclick="st('actualizaciones',this)">Actualizaciones</button>
+  <button class="nb" onclick="st('debitos',this)">Débitos</button>
+  <button class="nb" onclick="st('siniestros',this)">Siniestros</button>
+  <button class="nb" onclick="st('propuesta',this)">La propuesta</button>
+</div>
+
+<div class="cnt">
+
+<!-- COTIZADOR -->
+<div class="sec on" id="s-cotizador">
+  <p class="st">Cotizador online en tiempo real</p>
+  <p class="ss">El cliente ingresa sus datos y obtiene la mejor opción de Galicia Seguros en segundos, con el descuento y las promociones que el productor define individualmente.</p>
+  <div class="mr">
+    <div class="mc"><div class="mv o">−10%</div><div class="ml">bonificación aplicada automáticamente</div></div>
+    <div class="mc"><div class="mv">24/7</div><div class="ml">disponible sin intervención del productor</div></div>
+    <div class="mc"><div class="mv o">Inmediato</div><div class="ml">resultado en segundos, sin llamadas</div></div>
+  </div>
+  <div class="cg">
+    <div class="cc">
+      <div class="cl">canal tradicional / directo</div>
+      <div class="ci"><i class="ti ti-x bad"></i>El cliente llama y espera respuesta</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Cotización manual, posible demora</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Sin comparación entre planes</div>
+      <div class="ci"><i class="ti ti-minus mid"></i>Precio sin descuento adicional</div>
+    </div>
+    <div class="cc pcp">
+      <div class="cl o">PCP Asesores de Seguros</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Cotización online instantánea</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Marca y modelo desde base de datos Galicia</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Mejor plan destacado automáticamente</div>
+      <div class="ci"><i class="ti ti-check ok"></i>10% bonificación aplicada</div>
+    </div>
+  </div>
+  <div class="fn2">El cotizador está activo en producción y recibe consultas de forma continua sin ninguna intervención del productor.</div>
+</div>
+
+<!-- ACTUALIZACIONES -->
+<div class="sec" id="s-actualizaciones">
+  <p class="st">Comunicación de actualizaciones de póliza</p>
+  <p class="ss">Cada vez que Galicia envía una actualización, el sistema la procesa automáticamente y le comunica al cliente de manera clara, personalizada y con el contexto que necesita para entender qué cambió.</p>
+  <div class="auto-badge"><i class="ti ti-circle-check"></i> Proceso 100% autónomo — sin intervención del productor</div>
+  <div class="cg">
+    <div class="cc">
+      <div class="cl">lo que recibe el asegurado hoy</div>
+      <div class="ci"><i class="ti ti-x bad"></i>PDF técnico con lenguaje de póliza</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Sin contexto ni explicación del cambio</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Sin comparativo con endoso anterior</div>
+      <div class="ci"><i class="ti ti-x bad"></i>El asegurado no entiende qué cambió</div>
+    </div>
+    <div class="cc pcp">
+      <div class="cl o">PCP Asesores de Seguros</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Email personalizado en lenguaje claro</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Comparativo endoso anterior vs nuevo</div>
+      <div class="ci"><i class="ti ti-check ok"></i>PDF de actualización adjunto</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Recordatorio: 3 días para denunciar siniestros</div>
+    </div>
+  </div>
+  <div class="em">
+    <div class="eh">
+      <div class="ef">De: admin@pcpasesoresdeseguros.ar</div>
+      <div class="es">Tu póliza Galicia fue actualizada — te explicamos qué cambió</div>
+    </div>
+    <div class="eb">
+      Hola <strong>Martínez, Carlos</strong>, tu póliza N° 11025886 fue actualizada.<br><br>
+      <div class="ebox">Premio anterior: $42.500 &nbsp;·&nbsp; Premio nuevo: $51.300 &nbsp;·&nbsp; Variación: +20,7%<br><span style="font-size:12px;color:#777">Cobertura: Todo Riesgo — sin cambios en la cobertura contratada.</span></div>
+      Encontrás el PDF con tu actualización adjunto a este correo. Recordá que tenés <strong>3 días hábiles</strong> para denunciar cualquier siniestro previo a esta fecha.<br><br>
+      Ante cualquier consulta, estamos a tu disposición.
+      <div class="esig">Leandro Vázquez · Productor Asesor de Seguros · Mat. SSN N° 94236<br>+54 11 2307-8263 · admin@pcpasesoresdeseguros.ar</div>
+    </div>
+  </div>
+</div>
+
+<!-- DEBITOS -->
+<div class="sec" id="s-debitos">
+  <p class="st">Recordatorios de débito y avisos de rechazo</p>
+  <p class="ss">El sistema anticipa los vencimientos y reconvierte los avisos de rechazo de Galicia en comunicaciones claras, con link de pago y alerta legal — de forma completamente autónoma.</p>
+  <div class="auto-badge"><i class="ti ti-circle-check"></i> Proceso 100% autónomo — sin intervención del productor</div>
+  <div class="cg">
+    <div class="cc">
+      <div class="cl">lo que recibe el asegurado hoy</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Aviso de deuda llega frío y tarde</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Incluye link de pago directo</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Sin alerta sobre riesgo de suspensión</div>
+      <div class="ci"><i class="ti ti-x bad"></i>Sin seguimiento del productor</div>
+    </div>
+    <div class="cc pcp">
+      <div class="cl o">PCP Asesores de Seguros</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Recordatorio 2 días antes del vencimiento</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Email reconvertido en lenguaje claro</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Alerta: suspensión de cobertura (Ley de Seguros)</div>
+      <div class="ci"><i class="ti ti-check ok"></i>Alerta interna al productor para seguimiento</div>
+    </div>
+  </div>
+  <div class="em">
+    <div class="eh">
+      <div class="ef">PCP Asesores de Seguros</div>
+      <div class="es">Aviso de débito rechazado — Galicia Seguros</div>
+    </div>
+    <div class="eb">
+      Hola <strong>García, Ana</strong>,<br><br>
+      Te escribimos porque no pudimos procesar el cobro de tu seguro. Queremos que puedas regularizar la situación antes de que afecte tu cobertura.<br><br>
+      <div class="ebox">
+        Póliza N.° <strong>40050080566</strong><br>
+        Saldo pendiente: <span class="eamt">$ 42.572,41</span>
+      </div>
+      Podés regularizar tu situación usando el botón de abajo. El link es válido por <strong>5 días</strong> y podés pagar con cualquier tarjeta o dinero en cuenta.<br><br>
+      <span class="ebtn">Abonar mi deuda online</span>
+      <div class="ewarn">⚠ Recordá que vencido el plazo para pagar la cuota, la compañía puede suspender la cobertura según la Ley de Seguros.</div>
+      <div class="esig">Leandro Vázquez · Productor Asesor de Seguros · Mat. SSN N° 94236<br>+54 11 2307-8263 · admin@pcpasesoresdeseguros.ar</div>
+    </div>
+  </div>
+</div>
+
+<!-- SINIESTROS -->
+<div class="sec" id="s-siniestros">
+  <p class="st">Gestión de siniestros — acompañamiento automático al asegurado</p>
+  <p class="ss">Cuando un cliente denuncia un siniestro, el productor genera la denuncia administrativa en el portal de la compañía. Con esa información y su criterio profesional, categoriza el caso y carga el formulario interno — que activa automáticamente todo el flujo de comunicación hacia el asegurado.</p>
+  <div class="auto-badge"><i class="ti ti-circle-check"></i> Una vez cargado el formulario, el proceso es 100% autónomo</div>
+  <ul class="fl">
+    <li class="fi">
+      <div class="fn">1</div>
+      <div class="ft">
+        <div class="ftt">El cliente denuncia el siniestro al productor</div>
+        <div class="ftd">El productor recibe la información, genera la denuncia administrativa en el portal de la compañía y obtiene el número de siniestro.</div>
+      </div>
+    </li>
+    <li class="fi">
+      <div class="fn">2</div>
+      <div class="ft">
+        <div class="ftt">El productor categoriza y carga el formulario interno</div>
+        <div class="ftd">Con su criterio profesional determina si el cliente es responsable o no, y carga todos los datos en el formulario interno del productor. Ese formulario activa la automatización.</div>
+      </div>
+    </li>
+    <li class="fi">
+      <div class="fn o">3</div>
+      <div class="ft">
+        <div class="ftt">El asegurado recibe instrucciones completas de forma automática</div>
+        <div class="ftd">Email personalizado según la categorización: pasos concretos, opciones de taller, documentación necesaria, plazos legales y botón directo al portal de la aseguradora del tercero.</div>
+      </div>
+    </li>
+  </ul>
+  <div class="em">
+    <div class="eh">
+      <div class="ef">PCP Asesores de Seguros</div>
+      <div class="es">Tu siniestro fue iniciado — Todo Riesgo, no responsable</div>
+    </div>
+    <div class="eb">
+      Hola <strong>López, Martín</strong>,<br><br>
+      Recibimos el inicio de tu siniestro y, analizando la información de tu denuncia, entendemos que <strong>no fuiste responsable del accidente</strong>. Esto tiene consecuencias favorables para vos que te explicamos a continuación.<br><br>
+      <div class="einfo">Tu cobertura Todo Riesgo cubre la reparación de tu vehículo. Sin embargo, tu póliza incluye una franquicia, la cual te corresponderá abonar al momento de retirar el vehículo del taller una vez finalizada la reparación.</div>
+      Dado que no fuiste responsable del accidente, <strong>la mejor opción es que reclames el valor de esa franquicia a la compañía del vehículo que te chocó</strong>. Avisanos si estás de acuerdo y te acompañamos en todo el proceso.<br><br>
+      <div class="esec">Paso 1 — Elegí un taller para la reparación</div>
+      <strong>Opción A — Red de talleres oficiales</strong><br>
+      <span style="font-size:12px;color:#555">Tiempos de inspección significativamente más cortos. Te orientamos para encontrar el más cercano.</span><br><br>
+      <strong>Opción B — Taller de tu elección</strong><br>
+      <span style="font-size:12px;color:#555">Necesitamos: nombre del taller, dirección y día en que llevás el vehículo.</span>
+      <div class="ewarn">⚠ El día de inspección debe ser informado con al menos <strong>72 horas de anticipación</strong> para coordinar la visita del inspector.</div>
+      <div class="esec">Reclamo de franquicia ante la compañía del tercero</div>
+      Si confirmás que querés iniciar el reclamo, te acompañamos. O podés ingresar directamente:<br><br>
+      <span class="ebtn" style="font-size:12px;padding:7px 16px">Reclamar franquicia ante Sancor</span><br><br>
+      <span style="font-size:11px;color:#777">Plazo legal: tenés hasta 3 años para realizar este reclamo (art. 2561 CCyC), pero te recomendamos iniciarlo cuanto antes.</span><br><br>
+      Quedamos a tu disposición para acompañarte en cada paso.
+      <div class="esig">Leandro Vázquez · Productor Asesor de Seguros · Mat. SSN N° 94236<br>+54 11 2307-8263 · admin@pcpasesoresdeseguros.ar · PCP Asesores de Seguros</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROPUESTA -->
+<div class="sec" id="s-propuesta">
+  <div class="galicia-badge"><i class="ti ti-building"></i> Propuesta para Galicia Seguros — segmento Plata y Oro</div>
+  <p class="st">¿Qué gana Galicia con este programa?</p>
+  <p class="ss">Este modelo es replicable en cualquier productor de la red. No es tecnología nueva — es metodología probada en producción real, que puede implementarse con acompañamiento.</p>
+  <div class="win-card">
+    <div class="win-icon wi-b"><i class="ti ti-users" style="font-size:18px"></i></div>
+    <div class="win-text"><div class="win-title">Productores más profesionales</div><div class="win-desc">El canal eleva la calidad de servicio al asegurado sin depender de la compañía para hacerlo.</div></div>
+  </div>
+  <div class="win-card">
+    <div class="win-icon wi-o"><i class="ti ti-trending-down" style="font-size:18px"></i></div>
+    <div class="win-text"><div class="win-title">Menor tasa de bajas y anulaciones</div><div class="win-desc">La comunicación proactiva en débitos y siniestros reduce la pérdida de clientes por fricción evitable.</div></div>
+  </div>
+  <div class="win-card">
+    <div class="win-icon wi-g"><i class="ti ti-award" style="font-size:18px"></i></div>
+    <div class="win-text"><div class="win-title">Diferenciación real del canal</div><div class="win-desc">Un productor que acompaña así a su cartera no compite por precio — compite por experiencia.</div></div>
+  </div>
+  <div class="div"></div>
+  <p class="st">Programa de implementación</p>
+  <p class="ss">No se vende tecnología. Se ofrece criterio, metodología y acompañamiento — para que cada productor construya su propio ecosistema adaptado a su operación.</p>
+  <div class="prop-grid">
+    <div class="prop-card feat">
+      <div class="prop-header">
+        <div class="prop-title">Diagnóstico + hoja de ruta</div>
+        <div class="prop-price">USD 300<span>pago único</span></div>
+      </div>
+      <div class="prop-desc">Relevamiento de la operación del productor y entrega de un plan de implementación personalizado con flujos priorizados y estimación de tiempos.</div>
+      <ul class="prop-items">
+        <li><i class="ti ti-check ok"></i>Reunión de diagnóstico (~2hs)</li>
+        <li><i class="ti ti-check ok"></i>Mapa de flujos prioritarios</li>
+        <li><i class="ti ti-check ok"></i>Hoja de ruta de implementación</li>
+        <li><i class="ti ti-check ok"></i>Estimación de costos y tiempos</li>
+      </ul>
+    </div>
+    <div class="prop-card">
+      <div class="prop-header">
+        <div class="prop-title">Acompañamiento mensual</div>
+        <div class="prop-price">+ USD 100<span>/mes</span></div>
+      </div>
+      <div class="prop-desc">Sesiones de trabajo donde el productor construye y el consultor revisa, corrige y desbloquea con criterio de quien ya lo tiene funcionando.</div>
+      <ul class="prop-items">
+        <li><i class="ti ti-check ok"></i>Sesiones semanales de seguimiento</li>
+        <li><i class="ti ti-check ok"></i>Revisión y corrección de flujos</li>
+        <li><i class="ti ti-check ok"></i>Desbloqueamos problemas en tiempo real</li>
+        <li><i class="ti ti-check ok"></i>Hasta que el sistema corra solo</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cta-block">
+    <p>Esta propuesta está respaldada por un ecosistema funcionando en producción real, con más de 300 clientes activos y 3 compañías integradas.</p>
+    <div class="cta-name">Leandro Vázquez</div>
+    <div class="cta-data">Productor Asesor de Seguros<br>+54 11 2307-8263 · admin@pcpasesoresdeseguros.ar</div>
+    <div class="cta-mat">Mat. Nacional SSN N° 94236 · PCP Asesores de Seguros</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function st(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
