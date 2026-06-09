@@ -89,6 +89,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cta-name{color:white;font-size:16px;font-weight:700;margin-bottom:4px}
 .cta-data{color:rgba(255,255,255,0.7);font-size:13px;line-height:1.9}
 .cta-mat{color:#F07820;font-size:11px;margin-top:8px;font-weight:600}
+.meet-block{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:1.5rem;margin-top:1.25rem}
+.meet-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:1.25rem}
+.meet-icon{width:42px;height:42px;border-radius:10px;background:#E6F1FB;color:#0C447C;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.meet-title{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
+.meet-sub{font-size:12px;color:#666;line-height:1.55}
+.meet-fields{display:flex;flex-direction:column;gap:12px;margin-bottom:1.25rem}
+.meet-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.meet-row{grid-template-columns:1fr}}
+.meet-field{display:flex;flex-direction:column;gap:5px}
+.meet-label{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.4px}
+.meet-input{border:1px solid #ddd;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fafafa;outline:none;transition:border 0.15s}
+.meet-input:focus{border-color:#0C447C;background:#fff}
+.meet-textarea{min-height:72px;resize:vertical}
+.meet-btn{background:#0C447C;color:white;border:none;border-radius:9px;padding:11px 24px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background 0.15s}
+.meet-btn:hover{background:#0a3a63}
+.meet-foot{font-size:12px;color:#888;margin-top:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.meet-wa{color:#1D9E75;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.meet-mail{color:#0C447C;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.meet-success{background:#F0FBF5;border:1px solid #A8E6C8;border-radius:14px;padding:2rem;margin-top:1.25rem;text-align:center}
+#meet-msg.error{background:#FFF0F0;border:1px solid #F5BCBC;border-radius:8px;padding:9px 13px;font-size:12px;color:#B00020;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -330,6 +350,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="cta-data">Productor Asesor de Seguros<br>+54 11 2307-8263 · admin@pcpasesoresdeseguros.ar</div>
     <div class="cta-mat">Mat. Nacional SSN N° 94236 · PCP Asesores de Seguros</div>
   </div>
+
+  <!-- AGENDA REUNIÓN -->
+  <div class="meet-block" id="meet-form">
+    <div class="meet-header">
+      <div class="meet-icon"><i class="ti ti-calendar-event"></i></div>
+      <div>
+        <div class="meet-title">Agendemos una reunión</div>
+        <div class="meet-sub">Completá tus datos y te contactamos para coordinar día y horario.</div>
+      </div>
+    </div>
+    <div class="meet-fields">
+      <div class="meet-row">
+        <div class="meet-field">
+          <label class="meet-label">Nombre y apellido *</label>
+          <input class="meet-input" type="text" id="m-nombre" placeholder="Ej: Juan Pérez">
+        </div>
+        <div class="meet-field">
+          <label class="meet-label">Cargo / Área</label>
+          <input class="meet-input" type="text" id="m-cargo" placeholder="Ej: Gerente Comercial">
+        </div>
+      </div>
+      <div class="meet-row">
+        <div class="meet-field">
+          <label class="meet-label">WhatsApp</label>
+          <input class="meet-input" type="tel" id="m-wa" placeholder="+54 11 xxxxxxxx">
+        </div>
+        <div class="meet-field">
+          <label class="meet-label">Correo electrónico</label>
+          <input class="meet-input" type="email" id="m-email" placeholder="nombre@galiciaseguros.com.ar">
+        </div>
+      </div>
+      <div class="meet-field" style="margin-top:4px">
+        <label class="meet-label">¿Algún comentario o preferencia de horario?</label>
+        <textarea class="meet-input meet-textarea" id="m-nota" placeholder="Opcional — ej: prefiero tarde, martes o jueves..."></textarea>
+      </div>
+    </div>
+    <div id="meet-msg" style="display:none"></div>
+    <button class="meet-btn" onclick="enviarReunion()">
+      <i class="ti ti-send"></i> Solicitar reunión
+    </button>
+    <div class="meet-foot">También podés escribirnos directamente:
+      <a href="https://wa.me/5491123078263?text=Hola%20Leandro%2C%20vi%20la%20propuesta%20y%20quiero%20coordinar%20una%20reuni%C3%B3n." target="_blank" class="meet-wa">
+        <i class="ti ti-brand-whatsapp"></i> WhatsApp
+      </a> ·
+      <a href="mailto:admin@pcpasesoresdeseguros.ar?subject=Reunión%20propuesta%20PCP%20Asesores" class="meet-mail">
+        <i class="ti ti-mail"></i> Email
+      </a>
+    </div>
+  </div>
+  <div id="meet-ok" style="display:none" class="meet-success">
+    <i class="ti ti-circle-check" style="font-size:32px;color:#1D9E75;display:block;margin-bottom:10px"></i>
+    <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:6px">¡Solicitud recibida!</div>
+    <div style="font-size:13px;color:#555;line-height:1.65">Leandro va a contactarte a la brevedad para confirmar día y horario.</div>
+  </div>
 </div>
 
 </div>
@@ -340,6 +414,39 @@ function st(id,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('s-'+id).classList.add('on');
   btn.classList.add('on');
+}
+
+function enviarReunion(){
+  const nombre = document.getElementById('m-nombre').value.trim();
+  const cargo = document.getElementById('m-cargo').value.trim();
+  const wa = document.getElementById('m-wa').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const nota = document.getElementById('m-nota').value.trim();
+  const msg = document.getElementById('meet-msg');
+
+  if(!nombre){
+    msg.className='error'; msg.style.display='block';
+    msg.textContent='Por favor ingresá tu nombre y apellido.'; return;
+  }
+  if(!wa && !email){
+    msg.className='error'; msg.style.display='block';
+    msg.textContent='Ingresá al menos un medio de contacto: WhatsApp o correo electrónico.'; return;
+  }
+  msg.style.display='none';
+
+  let texto = `Hola Leandro, vi tu propuesta y quiero agendar una reunión.%0A%0A`;
+  texto += `*Nombre:* ${encodeURIComponent(nombre)}%0A`;
+  if(cargo) texto += `*Cargo:* ${encodeURIComponent(cargo)}%0A`;
+  if(wa) texto += `*WhatsApp:* ${encodeURIComponent(wa)}%0A`;
+  if(email) texto += `*Email:* ${encodeURIComponent(email)}%0A`;
+  if(nota) texto += `*Comentario:* ${encodeURIComponent(nota)}%0A`;
+
+  document.getElementById('meet-form').style.display='none';
+  document.getElementById('meet-ok').style.display='block';
+
+  setTimeout(()=>{
+    window.open(`https://wa.me/5491123078263?text=${texto}`, '_blank');
+  }, 600);
 }
 </script>
 </body>
