@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cotizá tu seguro de auto | PCP Asesores de Seguros</title>
   <meta name="description" content="Cotizá tu seguro de auto online. Resultado instantáneo, sin dejar datos personales." />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f7f7f5; color: #1a1a1a; min-height: 100vh; padding: 2rem 1rem 4rem; }
@@ -76,6 +77,11 @@
     .plan-periodo { font-size: 11px; color: #5f5e5a; margin-top: 2px; }
     .btn-interes { margin-top: 8px; width: 100%; padding: 7px; background: #185FA5; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
     .btn-interes:hover { background: #0C447C; }
+
+    .resultado-acciones { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .btn-descargar-pdf { display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #185FA5; border: 1px solid #185FA5; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-descargar-pdf:hover { background: #EBF3FC; }
+    .btn-descargar-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .nueva-link { display: block; text-align: center; font-size: 13px; color: #5f5e5a; margin-top: 1.25rem; cursor: pointer; text-decoration: underline; }
     .nueva-link:hover { color: #185FA5; }
@@ -183,6 +189,12 @@
       <div class="bien-tag" id="bien-desc"></div>
       <div class="cotiz-fecha" id="cotiz-info"></div>
     </div>
+    <div class="resultado-acciones">
+      <button class="btn-descargar-pdf" id="btn-descargar-pdf" onclick="descargarCotizacionPDF()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Descargar cotización (PDF)
+      </button>
+    </div>
     <div id="planes-container"></div>
     <span class="nueva-link" onclick="nuevaCotizacion()">← Cotizar otro vehículo</span>
   </div>
@@ -246,6 +258,15 @@ const WEBHOOK_MAKE = 'https://hook.us2.make.com/7vs5xcraexlcvvl1chzq2ajoxcbymxnz
 let _marcasData = [];
 let _modelosData = [];
 let _cotizacionActual = {};
+let _cotizacionCompleta = {};
+
+const DATOS_PCP = {
+  nombre: 'Leandro Ezequiel Vázquez',
+  matricula: 'Matrícula 94.236',
+  telefono: '+54 9 11 2307-8263',
+  email: 'admin@pcpasesoresdeseguros.ar',
+  web: 'pcpasesoresdeseguros.ar'
+};
 
 function showStep(n) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -431,6 +452,17 @@ function mostrarResultados(data) {
   document.getElementById('cotiz-info').textContent =
     (data.numeroCotizacion ? 'Cotización Nº ' + data.numeroCotizacion + ' · ' : '') + (data.fechaCotizacion || '');
 
+  const sumaAseguradaAPI = (data.bienesCotizados && data.bienesCotizados[0] && data.bienesCotizados[0].sumaAsegurada)
+    ? data.bienesCotizados[0].sumaAsegurada : null;
+
+  _cotizacionCompleta = {
+    bienTexto,
+    numeroCotizacion: data.numeroCotizacion || '',
+    fechaCotizacion: data.fechaCotizacion || '',
+    sumaAsegurada: sumaAseguradaAPI,
+    planesData: data
+  };
+
   const planes = normalizarPlanes(data);
   const planesMap = {};
   planes.forEach(p => planesMap[String(p.plan)] = p);
@@ -476,6 +508,122 @@ function mostrarResultados(data) {
     container.appendChild(div);
   });
   showStep(3);
+}
+
+function formatMonto(monto) {
+  return monto > 0 ? '$' + Math.round(monto).toLocaleString('es-AR') : 'Consultar';
+}
+
+function construirFilasPlanesPDF() {
+  const data = _cotizacionCompleta.planesData || {};
+  const planes = normalizarPlanes(data);
+  const planesMap = {};
+  planes.forEach(p => planesMap[String(p.plan)] = p);
+
+  let filas = '';
+  ORDEN_PLANES.forEach(planId => {
+    const plan = planesMap[planId];
+    if (!plan) return;
+    const info = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
+    const { monto, vigencia, descuento } = obtenerMejorPromocion(plan);
+    const vigenciaTexto = vigencia.includes('MENSUAL') ? 'Mensual' : (vigencia || 'Mensual');
+    const promoCodigo = (plan.promocionesPorPlan && plan.promocionesPorPlan[0] && plan.promocionesPorPlan[0].descripcion) || vigenciaTexto;
+    const detalleHTML = (plan.descripcionAdicional && plan.descripcionAdicional.trim())
+      ? '<div class="pdf-plan-detalle">' + plan.descripcionAdicional.trim() + '</div>' : '';
+    const promoHTML = descuento > 0
+      ? '<div class="pdf-promo-tag">' + promoCodigo + ' · Promo −' + descuento + '%</div>'
+      : '<div class="pdf-promo-tag">' + promoCodigo + '</div>';
+    const badge = info.destacado ? ' <span class="pdf-badge">★ Recomendado</span>' : '';
+
+    filas += '<tr' + (info.destacado ? ' class="pdf-destacada"' : '') + '>' +
+      '<td><div class="pdf-plan-nombre">' + info.nombre + badge + '</div>' +
+      '<div class="pdf-plan-cod">Plan ' + planId + '</div>' + detalleHTML + '</td>' +
+      '<td>' + promoHTML + '</td>' +
+      '<td class="pdf-right">' + formatMonto(monto) + '</td>' +
+      '</tr>';
+  });
+  return filas;
+}
+
+async function descargarCotizacionPDF() {
+  const btn = document.getElementById('btn-descargar-pdf');
+  const textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = 'Generando PDF...';
+
+  const { bienTexto, numeroCotizacion, fechaCotizacion, sumaAsegurada } = _cotizacionCompleta;
+  const sumaAseguradaTexto = sumaAsegurada ? '$' + Math.round(sumaAsegurada).toLocaleString('es-AR') : '—';
+
+  const html = '' +
+    '<div style="font-family:Helvetica,Arial,sans-serif;color:#1a1a1a;padding:30px 34px;font-size:12.5px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #185FA5;padding-bottom:14px;margin-bottom:18px;">' +
+        '<div>' +
+          '<div style="font-size:20px;font-weight:800;color:#185FA5;">PCP Asesores de Seguros</div>' +
+          '<div style="font-size:11px;color:#888780;margin-top:2px;">Comparamos coberturas y precios para conseguirte el mejor costo</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          '<div style="font-size:14px;font-weight:700;">' + (numeroCotizacion ? 'Cotización Nº ' + numeroCotizacion : 'Cotización') + '</div>' +
+          '<div style="font-size:11px;color:#888780;margin-top:2px;">Fecha: ' + (fechaCotizacion || '') + '</div>' +
+          '<div style="display:inline-block;margin-top:6px;background:#EBF3FC;color:#185FA5;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;">Compañía: Provincia Seguros</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="background:#f7f7f5;border-radius:10px;padding:12px 16px;margin-bottom:18px;">' +
+        '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:#888780;margin-bottom:6px;">Vehículo cotizado</div>' +
+        '<div style="font-size:13px;font-weight:600;">' + bienTexto + '</div>' +
+        '<div style="font-size:11.5px;color:#5f5e5a;margin-top:4px;">Suma asegurada: ' + sumaAseguradaTexto + '</div>' +
+      '</div>' +
+      '<style>' +
+        '.pdf-tabla{width:100%;border-collapse:collapse;margin-bottom:18px;}' +
+        '.pdf-tabla thead th{background:#185FA5;color:#fff;font-size:10px;text-transform:uppercase;padding:8px 10px;text-align:left;}' +
+        '.pdf-tabla tbody td{padding:8px 10px;font-size:11.5px;border-bottom:1px solid #ececea;vertical-align:top;}' +
+        '.pdf-right{text-align:right;font-weight:700;font-size:13px;color:#185FA5;white-space:nowrap;}' +
+        '.pdf-destacada{background:#FFF8ED;}' +
+        '.pdf-destacada .pdf-right{color:#B8860B;}' +
+        '.pdf-plan-nombre{font-weight:700;}' +
+        '.pdf-plan-cod{color:#b4b2a9;font-size:10px;}' +
+        '.pdf-plan-detalle{color:#888780;font-size:10px;margin-top:2px;}' +
+        '.pdf-promo-tag{color:#185FA5;font-size:10px;}' +
+        '.pdf-badge{display:inline-block;background:#F07820;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:6px;margin-left:5px;}' +
+      '</style>' +
+      '<table class="pdf-tabla">' +
+        '<thead><tr><th style="width:52%">Plan</th><th>Promoción</th><th style="text-align:right">Precio mensual</th></tr></thead>' +
+        '<tbody>' + construirFilasPlanesPDF() + '</tbody>' +
+      '</table>' +
+      '<div style="font-size:9.5px;color:#b4b2a9;margin-bottom:20px;line-height:1.5;">' +
+        'Cotización orientativa sujeta a verificación final de la compañía aseguradora al momento de la emisión. Los precios pueden variar según antecedentes del asegurado y actualización de valores del vehículo.' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e8e8e6;padding-top:14px;">' +
+        '<div>' +
+          '<div style="font-size:12.5px;font-weight:700;">' + DATOS_PCP.nombre + '</div>' +
+          '<div style="font-size:10px;color:#888780;margin-top:1px;">Asesor de Seguros · ' + DATOS_PCP.matricula + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;font-size:10.5px;color:#5f5e5a;line-height:1.6;">' +
+          '<div>Tel/WhatsApp: ' + DATOS_PCP.telefono + '</div>' +
+          '<div>Email: ' + DATOS_PCP.email + '</div>' +
+          '<div>Web: ' + DATOS_PCP.web + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  const contenedor = document.createElement('div');
+  contenedor.innerHTML = html;
+  document.body.appendChild(contenedor);
+
+  try {
+    await html2pdf().set({
+      margin: 0,
+      filename: 'Cotizacion-PCP-' + (numeroCotizacion || Date.now()) + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(contenedor).save();
+  } catch (e) {
+    alert('No se pudo generar el PDF. Probá de nuevo en unos segundos.');
+  } finally {
+    document.body.removeChild(contenedor);
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
 }
 
 async function expresarInteres(planId, planDesc, monto) {
