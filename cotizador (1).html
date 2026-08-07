@@ -56,6 +56,9 @@
     .loading-sub { font-size: 13px; color: #5f5e5a; }
 
     .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 14px; color: #991b1b; font-size: 13px; margin-top: 12px; line-height: 1.5; }
+    .error-box .error-ayuda-link { display: block; margin-top: 8px; font-size: 12px; color: #991b1b; text-decoration: underline; }
+    .btn-reintentar { display: block; width: 100%; margin-top: 10px; padding: 9px; background: #fff; color: #991b1b; border: 1px solid #fca5a5; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-reintentar:hover { background: #fef2f2; }
 
     .resultado-header { text-align: center; margin-bottom: 1.25rem; }
     .resultado-tag { display: inline-flex; align-items: center; gap: 6px; background: #EBF3FC; color: #0C447C; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; margin-bottom: 8px; border: 1px solid #B5D4F4; }
@@ -289,18 +292,54 @@ function showStep(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function setError(msg) {
-  document.getElementById('error-step1').innerHTML = msg
-    ? '<div class="error-box">' + msg + '</div>' : '';
+function setError(msg, opts) {
+  const div = document.getElementById('error-step1');
+  if (!msg) { div.innerHTML = ''; return; }
+  const o = opts || {};
+  let html = '<div class="error-box">' + msg;
+  if (o.reintentar) {
+    html += '<button type="button" class="btn-reintentar" onclick="' + o.reintentar + '">↻ Reintentar</button>';
+  }
+  if (o.ayuda) {
+    html += '<a class="error-ayuda-link" href="https://wa.me/541123078263?text=Hola%2C%20tuve%20un%20problema%20cotizando%20en%20la%20web" target="_blank">¿Seguís con problemas? Escribinos por WhatsApp</a>';
+  }
+  html += '</div>';
+  div.innerHTML = html;
+}
+
+// Igual que fetch(), pero corta el pedido si tarda más de timeoutMs
+// (evita que el spinner de "Buscando la mejor opción..." quede girando para siempre).
+async function fetchConTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs || 20000);
+  try {
+    const res = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+    return res;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// Traduce un status HTTP / error de negocio a un mensaje entendible para el cliente.
+// Nunca mostramos el status o el texto crudo que devuelve Make/la compañía.
+function mensajeErrorCotizacion(status, esDeNegocio) {
+  if (esDeNegocio || (status >= 400 && status < 500)) {
+    return 'No pudimos cotizar esta versión exacta del vehículo. Puede que la compañía todavía no la tenga cargada en su sistema. Probá eligiendo otra versión o un año similar.';
+  }
+  if (status >= 500) {
+    return 'La aseguradora está teniendo un problema técnico en este momento. No es nada que hayas hecho vos — probá de nuevo en unos segundos.';
+  }
+  return 'No pudimos completar la cotización. Probá de nuevo en unos minutos.';
 }
 
 async function cargarMarcas() {
   try {
-    const res = await fetch(WEBHOOK_MAKE, {
+    const res = await fetchConTimeout(WEBHOOK_MAKE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accion: 'obtenerMarcas' })
-    });
+    }, 15000);
+    if (!res.ok) throw new Error('status ' + res.status);
     const data = await res.json();
     _marcasData = (Array.isArray(data) ? data : (data.marcas || [])).sort((a, b) => a.descripcion.localeCompare(b.descripcion));
     const sel = document.getElementById('sel-marca');
@@ -311,7 +350,9 @@ async function cargarMarcas() {
       sel.appendChild(o);
     });
   } catch(e) {
-    document.getElementById('sel-marca').innerHTML = '<option value="">Error al cargar</option>';
+    console.error('Error al cargar marcas:', e);
+    document.getElementById('sel-marca').innerHTML = '<option value="">No se pudieron cargar las marcas</option>';
+    setError('No pudimos cargar el listado de marcas. Puede ser un problema momentáneo de conexión.', { reintentar: 'location.reload()', ayuda: true });
   }
 }
 
@@ -333,14 +374,22 @@ async function cargarModelos() {
   if (!marca || !anio) { sel.innerHTML = '<option value="">Primero elegí marca y año</option>'; sel.disabled = true; return; }
   sel.innerHTML = '<option value="">Cargando modelos...</option>';
   sel.disabled = true;
+  setError('');
   try {
-    const res = await fetch(WEBHOOK_MAKE, {
+    const res = await fetchConTimeout(WEBHOOK_MAKE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accion: 'obtenerModelos', marca, anio })
-    });
+    }, 15000);
+    if (!res.ok) throw new Error('status ' + res.status);
     const data = await res.json();
     _modelosData = Array.isArray(data) ? data : (data.modelos || []);
+    if (_modelosData.length === 0) {
+      sel.innerHTML = '<option value="">Sin modelos para ese año</option>';
+      sel.disabled = true;
+      setError('No encontramos modelos de esta marca para el año ' + anio + '. Probá con otro año.');
+      return;
+    }
     sel.innerHTML = '<option value="">Elegí un modelo</option>';
     _modelosData.forEach(m => {
       const o = document.createElement('option');
@@ -349,8 +398,10 @@ async function cargarModelos() {
     });
     sel.disabled = false;
   } catch(e) {
+    console.error('Error al cargar modelos:', e);
     sel.innerHTML = '<option value="">Error al cargar modelos</option>';
-    sel.disabled = false;
+    sel.disabled = true;
+    setError('No pudimos cargar los modelos para esa marca y año. Puede ser un problema momentáneo.', { reintentar: 'cargarModelos()', ayuda: true });
   }
 }
 
@@ -374,18 +425,43 @@ async function iniciarCotizacion() {
   };
   showStep(2);
   try {
-    const res = await fetch(WEBHOOK_MAKE, {
+    const res = await fetchConTimeout(WEBHOOK_MAKE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accion: 'cotizar', nombre, marca, anio, modelo, cp })
-    });
-    if (!res.ok) throw new Error('Error ' + res.status);
+    }, 25000);
+    if (!res.ok) {
+      const err = new Error('status ' + res.status);
+      err.status = res.status;
+      throw err;
+    }
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    if (data.error) {
+      const err = new Error(data.error);
+      err.esDeNegocio = true;
+      throw err;
+    }
+    const hayPlanes = normalizarPlanes(data).some(p => ORDEN_PLANES.includes(String(p.plan)));
+    if (!hayPlanes) {
+      const err = new Error('sin planes disponibles');
+      err.sinPlanes = true;
+      throw err;
+    }
     mostrarResultados(data);
   } catch(e) {
+    console.error('Error al cotizar:', e);
     showStep(1);
-    setError(e.message || 'Error al cotizar. Intentá de nuevo en unos minutos.');
+    if (e.name === 'AbortError') {
+      setError('La cotización está tardando más de lo normal. Podés esperar un momento y volver a intentar.', { reintentar: 'iniciarCotizacion()', ayuda: true });
+    } else if (e.sinPlanes) {
+      setError('No encontramos coberturas disponibles para este vehículo en este momento. Probá con otra versión o escribinos y te cotizamos a mano.', { ayuda: true });
+    } else if (typeof e.status === 'number' && e.status >= 500) {
+      setError(mensajeErrorCotizacion(e.status, false), { reintentar: 'iniciarCotizacion()', ayuda: true });
+    } else if (typeof e.status === 'number' || e.esDeNegocio) {
+      setError(mensajeErrorCotizacion(e.status, e.esDeNegocio), { ayuda: true });
+    } else {
+      setError('No pudimos conectarnos con el servidor. Revisá tu conexión a internet e intentá de nuevo.', { reintentar: 'iniciarCotizacion()', ayuda: true });
+    }
   }
 }
 
