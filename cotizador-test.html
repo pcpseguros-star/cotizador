@@ -14,6 +14,18 @@
     .test-banner { background:#C46A2D; color:#fff; text-align:center; font-size:12px; font-weight:600; padding:6px 10px; border-radius:8px; margin-bottom:12px; letter-spacing:.04em; }
     .cp-hint { font-size:12px; color:#6b6b6b; margin-top:6px; min-height:16px; }
     .cp-hint.error { color:#b42318; }
+    .recom-contador { font-size:12px; color:#8a93a3; font-weight:600; margin-bottom:8px; }
+    .recom-progreso { height:5px; background:#eceff3; border-radius:3px; overflow:hidden; margin-bottom:18px; }
+    .recom-relleno { height:100%; width:0%; background:linear-gradient(90deg,#185FA5,#F07820); transition:width .25s; }
+    .recom-texto { font-size:16px; line-height:1.5; font-weight:600; color:#14213d; margin-bottom:16px; }
+    .recom-opcion { display:block; width:100%; text-align:left; background:#f7f9fc; border:1.5px solid #e6e9ef; border-radius:10px; padding:13px 16px; font-size:14.5px; color:#14213d; cursor:pointer; margin-bottom:10px; font-family:inherit; }
+    .recom-opcion:hover { border-color:#185FA5; background:#eef4fb; }
+    .recom-volver { background:none; border:none; color:#8a93a3; font-size:12.5px; text-decoration:underline; cursor:pointer; padding:0 0 12px; font-family:inherit; }
+    .recom-resumen { background:#fff; border:1px solid #e8e8e6; border-radius:14px; padding:1rem 1.25rem; margin-bottom:12px; }
+    .recom-resumen-titulo { font-size:15px; font-weight:700; color:#14213d; margin-bottom:6px; }
+    .recom-resumen-desc { font-size:13px; line-height:1.55; color:#4a5568; }
+    .recom-resumen-nota { font-size:12px; color:#6b6b6b; margin-top:8px; }
+    .plan-badge.alt { background:#F3F3F1; color:#5f5e5a; }
 
     .header { text-align: center; margin-bottom: 1.5rem; }
     .header-brand { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: #185FA5; text-transform: uppercase; margin-bottom: 8px; }
@@ -178,6 +190,17 @@
     </div>
   </div>
 
+  <!-- STEP R: Recomendador -->
+  <div class="step" id="stepR">
+    <div class="card">
+      <button class="recom-volver" type="button" onclick="volverAlFormulario()">← Volver a los datos del auto</button>
+      <div class="recom-contador" id="recom-contador"></div>
+      <div class="recom-progreso"><div class="recom-relleno" id="recom-relleno"></div></div>
+      <div class="recom-texto" id="recom-texto"></div>
+      <div id="recom-opciones"></div>
+    </div>
+  </div>
+
   <!-- STEP 2: Loading -->
   <div class="step" id="step2">
     <div class="card loading-box">
@@ -203,6 +226,11 @@
       </div>
       <div class="bien-tag" id="bien-desc"></div>
       <div class="cotiz-fecha" id="cotiz-info"></div>
+    </div>
+    <div class="recom-resumen" id="recom-resumen" style="display:none">
+      <div class="recom-resumen-titulo" id="recom-resumen-titulo"></div>
+      <div class="recom-resumen-desc" id="recom-resumen-desc"></div>
+      <div class="recom-resumen-nota" id="recom-resumen-nota"></div>
     </div>
     <div class="resultado-acciones">
       <button class="btn-descargar-pdf" id="btn-descargar-pdf" onclick="descargarCotizacionPDF()">
@@ -500,6 +528,96 @@ document.getElementById('inp-cp').addEventListener('input', () => {
 });
 document.getElementById('inp-cp').addEventListener('blur', buscarLocalidades);
 
+// ---- Recomendador (misma lógica que "Aprendé sobre Seguros") ----
+const DATA_NIVEL = {
+  1: { titulo: 'Responsabilidad Civil (RC)', desc: 'Cubre lo que la ley exige: los daños que le puedas ocasionar a un tercero (persona o bienes) manejando tu auto. No cubre nada de tu propio vehículo.' },
+  2: { titulo: 'Terceros Completo', desc: 'Además de la Responsabilidad Civil, tu auto queda cubierto si te lo roban y no aparece, se incendia totalmente o queda destruido en un choque grave. No cubre daños parciales.' },
+  3: { titulo: 'Terceros Completo Full', desc: 'Todo lo de Terceros Completo, más granizo, inundación, rotura de cristales y daños en el techo por caída de árboles. No cubre el choque con daño parcial.' },
+  4: { titulo: 'Todo Riesgo (con franquicia)', desc: 'Cubre también el choque con daño parcial, tengas vos la culpa o no. Incluye franquicia: la parte que afrontás vos en cada siniestro.' }
+};
+// Plan recomendado + inmediata inferior (tabla acordada)
+const CADENA_PLANES = ['30', '40', '22', '2', '4'];
+function planRecomendado(nivel, franquicia) {
+  if (nivel === 1) return '4';
+  if (nivel === 2) return '2';
+  if (nivel === 3) return '22';
+  return franquicia === 'franquicia_baja' ? '30' : '40';
+}
+let _recom = null; // { nivel, franquicia, techoNota, presupuestoNota }
+let _estadoRecom = {};
+
+// Nivel que viene del bot: ?nivel=1..4&franq=alta|baja
+(function leerNivelURL() {
+  const n = parseInt(_urlParams.get('nivel') || '', 10);
+  if (n >= 1 && n <= 4) {
+    const f = (_urlParams.get('franq') || '').toLowerCase() === 'baja' ? 'franquicia_baja' : 'franquicia_alta';
+    _recom = { nivel: n, franquicia: n === 4 ? f : null, desdeBot: true };
+  }
+})();
+
+function techoPorAnio(anio) {
+  const antig = new Date().getFullYear() - Number(anio);
+  if (antig <= 10) return 4;
+  if (antig <= 15) return 3;
+  if (antig <= 20) return 2;
+  return 1;
+}
+
+function volverAlFormulario() { showStep(1); }
+
+function preguntaRecom(n, total, texto, opciones, onSelect) {
+  document.getElementById('recom-contador').textContent = 'Pregunta ' + n + ' de ' + total;
+  document.getElementById('recom-relleno').style.width = Math.round((n - 1) / total * 100) + '%';
+  document.getElementById('recom-texto').textContent = texto;
+  const cont = document.getElementById('recom-opciones');
+  cont.innerHTML = '';
+  opciones.forEach(op => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'recom-opcion'; b.textContent = op.t;
+    b.addEventListener('click', () => onSelect(op.v));
+    cont.appendChild(b);
+  });
+  showStep('R');
+}
+
+function terminarRecom(nivel, opts) {
+  _recom = Object.assign({ nivel, franquicia: nivel === 4 ? _estadoRecom.franquicia : null }, opts || {});
+  ejecutarCotizacion();
+}
+
+function correrRecomendador() {
+  const techo = techoPorAnio(_cotizacionActual.anio);
+  _estadoRecom = { techo };
+  const total = techo === 2 ? 1 : techo === 3 ? 2 : 5;
+  if (techo === 1) { terminarRecom(1, { techoNota: true }); return; }
+
+  preguntaRecom(1, total, '¿Qué querés cubrir: solo lo que exige la ley (los daños que le puedas ocasionar a un tercero), o también tu propio vehículo?',
+    [{ t: 'Solo lo obligatorio (RC)', v: 'rc' }, { t: 'También mi vehículo', v: 'vehiculo' }],
+    v => {
+      if (v === 'rc') return terminarRecom(1);
+      if (techo === 2) return terminarRecom(2, { techoNota: true });
+      preguntaRecom(2, total, 'Para tu auto, ¿te alcanza con estar cubierto si te lo roban y no aparece, se incendia totalmente o queda destruido en un choque grave? ¿O además te interesa que cubran granizo, inundación, rotura de cristales y daños en el techo por caída de árboles?',
+        [{ t: 'Con eso me alcanza (robo, incendio, destrucción total)', v: 2 }, { t: 'Quiero también granizo, cristales y esos adicionales', v: 3 }],
+        base => {
+          _estadoRecom.prefBase = base;
+          if (techo === 3) return terminarRecom(base, {});
+          preguntaRecom(3, total, 'Además de todo eso, ¿te interesa que te cubran el auto si tenés un choque con daño parcial (la situación más común), tengas vos la culpa o no?',
+            [{ t: 'No, con lo anterior me alcanza', v: 'no' }, { t: 'Sí, quiero eso también', v: 'si' }],
+            tr => {
+              if (tr === 'no') return terminarRecom(base);
+              preguntaRecom(4, total, 'Todo Riesgo siempre tiene franquicia: la parte que afrontás vos en cada siniestro. ¿Preferís una cuota un poco más alta con franquicia más baja, o una cuota más baja con franquicia más alta?',
+                [{ t: 'Cuota más alta, franquicia más baja', v: 'franquicia_baja' }, { t: 'Cuota más baja, franquicia más alta', v: 'franquicia_alta' }],
+                fr => {
+                  _estadoRecom.franquicia = fr;
+                  preguntaRecom(5, total, 'Todo Riesgo es la cobertura más completa, pero también la de cuota más alta. ¿Qué tan dispuesto estás a pagar esa diferencia?',
+                    [{ t: 'Prefiero pagar lo que haga falta por la cobertura más completa', v: 'tr' }, { t: 'Prefiero una cuota más accesible, aunque cubra un poco menos', v: 'acc' }],
+                    pr => pr === 'tr' ? terminarRecom(4) : terminarRecom(base, { presupuestoNota: true }));
+                });
+            });
+        });
+    });
+}
+
 async function iniciarCotizacion() {
   const nombre = document.getElementById('inp-nombre').value.trim();
   const marca  = document.getElementById('sel-marca').value;
@@ -532,6 +650,12 @@ async function iniciarCotizacion() {
     marcaDesc: (_marcasData.find(m => m.codigo === marca) || {}).descripcion || marca,
     modeloDesc: (_modelosData.find(m => m.codigo === modelo) || {}).descripcion || modelo
   };
+  if (_recom && _recom.desdeBot) { ejecutarCotizacion(); return; }
+  correrRecomendador();
+}
+
+async function ejecutarCotizacion() {
+  const { nombre, marca, anio, modelo, cp, provincia } = _cotizacionActual;
   showStep(2);
   try {
     const res = await fetchConTimeout(WEBHOOK_MAKE, {
@@ -561,15 +685,15 @@ async function iniciarCotizacion() {
     console.error('Error al cotizar:', e);
     showStep(1);
     if (e.name === 'AbortError') {
-      setError('La cotización está tardando más de lo normal. Podés esperar un momento y volver a intentar.', { reintentar: 'iniciarCotizacion()', ayuda: true });
+      setError('La cotización está tardando más de lo normal. Podés esperar un momento y volver a intentar.', { reintentar: 'ejecutarCotizacion()', ayuda: true });
     } else if (e.sinPlanes) {
       setError('No encontramos coberturas disponibles para este vehículo en este momento. Probá con otra versión o escribinos y te cotizamos a mano.', { ayuda: true });
     } else if (typeof e.status === 'number' && e.status >= 500) {
-      setError(mensajeErrorCotizacion(e.status, false), { reintentar: 'iniciarCotizacion()', ayuda: true });
+      setError(mensajeErrorCotizacion(e.status, false), { reintentar: 'ejecutarCotizacion()', ayuda: true });
     } else if (typeof e.status === 'number' || e.esDeNegocio) {
       setError(mensajeErrorCotizacion(e.status, e.esDeNegocio), { ayuda: true });
     } else {
-      setError('No pudimos conectarnos con el servidor. Revisá tu conexión a internet e intentá de nuevo.', { reintentar: 'iniciarCotizacion()', ayuda: true });
+      setError('No pudimos conectarnos con el servidor. Revisá tu conexión a internet e intentá de nuevo.', { reintentar: 'ejecutarCotizacion()', ayuda: true });
     }
   }
 }
@@ -587,6 +711,14 @@ const PLANES_INFO = {
   '20': { nombre: 'Todo Riesgo Franq. 1% Variable',     destacado: false },
 };
 const ORDEN_PLANES = ['22','2','1','8','7','4','40','43','30','20'];
+
+// Planes que ve el cliente: el recomendado y la inmediata inferior disponibles
+function planesAMostrar(planesMap) {
+  if (!_recom) return ORDEN_PLANES.filter(id => planesMap[id]);
+  const rec = planRecomendado(_recom.nivel, _recom.franquicia);
+  const desde = CADENA_PLANES.indexOf(rec);
+  return CADENA_PLANES.slice(desde).filter(id => planesMap[id]).slice(0, 2);
+}
 
 function normalizarPlanes(data) {
   if (Array.isArray(data)) return data;
@@ -670,10 +802,25 @@ function mostrarResultados(data) {
   const container = document.getElementById('planes-container');
   container.innerHTML = '';
 
-  ORDEN_PLANES.forEach(planId => {
+  const mostrar = planesAMostrar(planesMap);
+  _cotizacionCompleta.planesMostrados = mostrar;
+  const resumen = document.getElementById('recom-resumen');
+  if (_recom) {
+    const d = DATA_NIVEL[_recom.nivel];
+    document.getElementById('recom-resumen-titulo').textContent = 'Te recomendamos: ' + d.titulo;
+    document.getElementById('recom-resumen-desc').textContent = d.desc;
+    const notas = [];
+    if (_recom.techoNota) notas.push('Para la antigüedad de tu auto, esta es la cobertura más alta disponible.');
+    if (_recom.presupuestoNota) notas.push('Elegiste priorizar una cuota más accesible.');
+    document.getElementById('recom-resumen-nota').textContent = notas.join(' ');
+    resumen.style.display = '';
+  } else { resumen.style.display = 'none'; }
+
+  mostrar.forEach((planId, idx) => {
     const plan = planesMap[planId];
     if (!plan) return;
-    const info = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
+    const info0 = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
+    const info = _recom ? { nombre: info0.nombre, destacado: idx === 0 } : info0;
     const { monto, vigencia, descuento, montoBase } = obtenerMejorPromocion(plan);
     const vigenciaTexto = vigencia.includes('MENSUAL') ? 'Mensual Ref. Anual' : (vigencia || 'Mensual Ref. Anual');
     const montoFormateado = monto > 0 ? '$' + Math.round(monto).toLocaleString('es-AR') : 'Consultar';
@@ -682,7 +829,9 @@ function mostrarResultados(data) {
     const div = document.createElement('div');
     div.className = 'plan-card' + (info.destacado ? ' destacado' : '');
 
-    const badgeHTML = info.destacado ? '<span class="plan-badge">⭐ Más completo</span>' : '';
+    const badgeHTML = _recom
+      ? (idx === 0 ? '<span class="plan-badge">⭐ Recomendada para vos</span>' : '<span class="plan-badge alt">Alternativa más económica</span>')
+      : (info.destacado ? '<span class="plan-badge">⭐ Más completo</span>' : '');
     const descAdicHTML = (plan.descripcionAdicional && plan.descripcionAdicional.trim())
       ? '<div class="plan-vigencia" style="color:#888;font-size:11px;">' + plan.descripcionAdicional.trim() + '</div>' : '';
     const promoHTML = descuento > 0
@@ -721,7 +870,7 @@ function construirFilasPlanesPDF() {
   planes.forEach(p => planesMap[String(p.plan)] = p);
 
   let filas = '';
-  ORDEN_PLANES.forEach(planId => {
+  (_cotizacionCompleta.planesMostrados || ORDEN_PLANES).forEach(planId => {
     const plan = planesMap[planId];
     if (!plan) return;
     const info = PLANES_INFO[planId] || { nombre: plan.descripcion, destacado: false };
@@ -733,9 +882,10 @@ function construirFilasPlanesPDF() {
     const promoHTML = descuento > 0
       ? '<div class="pdf-promo-tag">' + promoCodigo + ' · Promo −' + descuento + '%</div>'
       : '<div class="pdf-promo-tag">' + promoCodigo + '</div>';
-    const badge = info.destacado ? ' <span class="pdf-badge">★ Recomendado</span>' : '';
+    const esRecom = _recom ? ((_cotizacionCompleta.planesMostrados || [])[0] === planId) : info.destacado;
+    const badge = esRecom ? ' <span class="pdf-badge">★ Recomendado</span>' : '';
 
-    filas += '<tr' + (info.destacado ? ' class="pdf-destacada"' : '') + '>' +
+    filas += '<tr' + (esRecom ? ' class="pdf-destacada"' : '') + '>' +
       '<td><div class="pdf-plan-nombre">' + info.nombre + badge + '</div>' +
       '<div class="pdf-plan-cod">Plan ' + planId + '</div>' + detalleHTML + '</td>' +
       '<td>' + promoHTML + '</td>' +
@@ -920,6 +1070,7 @@ async function enviarContacto() {
 }
 
 function nuevaCotizacion() {
+  if (!(_recom && _recom.desdeBot)) _recom = null;
   document.getElementById('inp-nombre').value = '';
   document.getElementById('inp-cp').value = '';
   _localidades = []; _cpConsultado = ''; _cpPromesa = null;
