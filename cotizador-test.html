@@ -461,7 +461,11 @@ function buscarLocalidades() {
       }, 20000);
       const data = await res.json();
       const lista = extraerArray(data.localidades !== undefined ? data.localidades : data)
-        .filter(l => l && l.localidad);
+        .filter(l => l && l.localidad)
+        // Provincia devuelve una localidad por defecto cuando el CP no existe:
+        // solo aceptamos las que traen exactamente el CP que escribió el cliente.
+        .filter(l => l.codigoPostal === undefined || l.codigoPostal === null ||
+                     String(l.codigoPostal).trim().replace(/^0+/, '') === cp.replace(/^0+/, ''));
       if (cp !== document.getElementById('inp-cp').value.trim()) return false;
       if (!lista.length) {
         setCpHint('No encontramos ese código postal. Revisalo, por favor.', true);
