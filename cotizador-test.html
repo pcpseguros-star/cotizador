@@ -999,6 +999,32 @@ async function descargarCotizacionPDF() {
 // Al tocar "Me interesa" en un plan: ya NO se manda nada al webhook todavía.
 // Primero se pide confirmar nombre + teléfono (el gate). El aviso real a
 // Leandro se dispara recién en confirmarInteresYAbrirWhatsapp().
+// Códigos que necesita la emisión para retomar esta cotización
+function datosCodigos() {
+  const planId = String(_interesActual.planId || '');
+  const planes = normalizarPlanes(_cotizacionCompleta.planesData || {});
+  const plan = planes.find(p => String(p.plan) === planId) || {};
+  let promo = '';
+  let menor = Infinity;
+  (plan.promocionesPorPlan || []).forEach(pr => {
+    const v = parseFloat(pr.premio || 0);
+    if (v > 0 && v < menor) { menor = v; promo = pr.codigoPromocion || ''; }
+  });
+  const nivelTxt = _recom
+    ? (_recom.nivel === 4 ? '4-' + (_recom.franquicia === 'franquicia_baja' ? 'baja' : 'alta') : String(_recom.nivel))
+    : '';
+  return {
+    numeroCotizacion: _cotizacionCompleta.numeroCotizacion || '',
+    codigoPlan: planId,
+    codigoPromocion: promo,
+    codigoMarca: _cotizacionActual.marca || '',
+    codigoModelo: _cotizacionActual.modelo || '',
+    provincia: _cotizacionActual.provincia || '',
+    localidad: _cotizacionActual.localidad || '',
+    nivel: nivelTxt
+  };
+}
+
 function expresarInteres(planId, planDesc, monto) {
   _interesActual = { planId, planDesc, monto };
 
@@ -1050,7 +1076,8 @@ async function confirmarInteresYAbrirWhatsapp() {
       marca: marcaDesc, modelo: modeloDesc, anio, cp,
       planId, planDesc, monto,
       origenBot: WA_PARAM || '',
-      fecha: new Date().toISOString()
+      fecha: new Date().toISOString(),
+      ...datosCodigos()
     })
   }).catch(() => {});
 
@@ -1081,7 +1108,8 @@ async function enviarContacto() {
         marca: marcaDesc, modelo: modeloDesc, anio, cp,
         planId, planDesc, monto,
         origenBot: WA_PARAM || '',
-        fecha: new Date().toISOString()
+        fecha: new Date().toISOString(),
+        ...datosCodigos()
       })
     });
   } catch(e) {}
