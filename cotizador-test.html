@@ -535,13 +535,31 @@ const DATA_NIVEL = {
   3: { titulo: 'Terceros Completo Full', desc: 'Todo lo de Terceros Completo, más granizo y rotura de cristales. No cubre el choque con daño parcial.' },
   4: { titulo: 'Todo Riesgo (con franquicia)', desc: 'Cubre también el choque con daño parcial, tengas vos la culpa o no. Incluye franquicia: la parte que afrontás vos en cada siniestro.' }
 };
-// Plan recomendado + inmediata inferior (tabla acordada)
-const CADENA_PLANES = ['30', '40', '22', '2', '4'];
-function planRecomendado(nivel, franquicia) {
-  if (nivel === 1) return '4';
-  if (nivel === 2) return '2';
-  if (nivel === 3) return '22';
-  return franquicia === 'franquicia_baja' ? '30' : '40';
+// Plan recomendado + inmediata inferior (tabla acordada).
+// Si Provincia no ofrece el plan ideal para ese auto, se toma el siguiente disponible
+// y el recuadro describe SIEMPRE el plan que se muestra.
+const CANDIDATOS_NIVEL = {
+  '1':  ['4'],
+  '2':  ['2', '7', '4'],
+  '3':  ['22', '2', '7', '4'],
+  '4a': ['40', '22', '2', '7', '4'],
+  '4b': ['30', '40', '22', '2', '7', '4']
+};
+const INFERIOR_DE = {
+  '30': ['40', '22'], '40': ['22', '2', '7'], '22': ['2', '7', '4'],
+  '2': ['4'], '7': ['4'], '4': []
+};
+const DESC_PLAN = {
+  '30': { titulo: 'Todo Riesgo (franquicia baja)', desc: () => DATA_NIVEL[4].desc },
+  '40': { titulo: 'Todo Riesgo (con franquicia)',  desc: () => DATA_NIVEL[4].desc },
+  '22': { titulo: 'Terceros Completo Full',         desc: () => DATA_NIVEL[3].desc },
+  '2':  { titulo: 'Terceros Completo',              desc: () => DATA_NIVEL[2].desc },
+  '7':  { titulo: 'RC + Incendio + Robo Total',     desc: () => 'Además de la Responsabilidad Civil, tu auto queda cubierto si te lo roban y no aparece o si se incendia totalmente. No cubre daños parciales.' },
+  '4':  { titulo: 'Responsabilidad Civil (RC)',     desc: () => DATA_NIVEL[1].desc }
+};
+function claveNivel(nivel, franquicia) {
+  if (nivel === 4) return franquicia === 'franquicia_baja' ? '4b' : '4a';
+  return String(nivel);
 }
 let _recom = null; // { nivel, franquicia, techoNota, presupuestoNota }
 let _estadoRecom = {};
@@ -674,7 +692,8 @@ async function ejecutarCotizacion() {
       err.esDeNegocio = true;
       throw err;
     }
-    const hayPlanes = normalizarPlanes(data).some(p => ORDEN_PLANES.includes(String(p.plan)));
+    const _pm = {}; normalizarPlanes(data).forEach(p => _pm[String(p.plan)] = p);
+    const hayPlanes = planesAMostrar(_pm).length > 0;
     if (!hayPlanes) {
       const err = new Error('sin planes disponibles');
       err.sinPlanes = true;
@@ -715,9 +734,10 @@ const ORDEN_PLANES = ['22','2','1','8','7','4','40','43','30','20'];
 // Planes que ve el cliente: el recomendado y la inmediata inferior disponibles
 function planesAMostrar(planesMap) {
   if (!_recom) return ORDEN_PLANES.filter(id => planesMap[id]);
-  const rec = planRecomendado(_recom.nivel, _recom.franquicia);
-  const desde = CADENA_PLANES.indexOf(rec);
-  return CADENA_PLANES.slice(desde).filter(id => planesMap[id]).slice(0, 2);
+  const principal = CANDIDATOS_NIVEL[claveNivel(_recom.nivel, _recom.franquicia)].find(id => planesMap[id]);
+  if (!principal) return [];
+  const inferior = (INFERIOR_DE[principal] || []).find(id => planesMap[id]);
+  return inferior ? [principal, inferior] : [principal];
 }
 
 function normalizarPlanes(data) {
@@ -806,9 +826,9 @@ function mostrarResultados(data) {
   _cotizacionCompleta.planesMostrados = mostrar;
   const resumen = document.getElementById('recom-resumen');
   if (_recom) {
-    const d = DATA_NIVEL[_recom.nivel];
-    document.getElementById('recom-resumen-titulo').textContent = 'Te recomendamos: ' + d.titulo;
-    document.getElementById('recom-resumen-desc').textContent = d.desc;
+    const dp = DESC_PLAN[mostrar[0]] || { titulo: DATA_NIVEL[_recom.nivel].titulo, desc: () => DATA_NIVEL[_recom.nivel].desc };
+    document.getElementById('recom-resumen-titulo').textContent = 'Te recomendamos: ' + dp.titulo;
+    document.getElementById('recom-resumen-desc').textContent = dp.desc();
     const notas = [];
     if (_recom.techoNota) notas.push('Para la antigüedad de tu auto, esta es la cobertura más alta disponible.');
     if (_recom.presupuestoNota) notas.push('Elegiste priorizar una cuota más accesible.');
