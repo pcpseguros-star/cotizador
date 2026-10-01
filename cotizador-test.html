@@ -532,7 +532,7 @@ document.getElementById('inp-cp').addEventListener('blur', buscarLocalidades);
 const DATA_NIVEL = {
   1: { titulo: 'Responsabilidad Civil (RC)', desc: 'Cubre lo que la ley exige: los daños que le puedas ocasionar a un tercero (persona o bienes) manejando tu auto. No cubre nada de tu propio vehículo.' },
   2: { titulo: 'Terceros Completo', desc: 'Además de la Responsabilidad Civil, tu auto queda cubierto si te lo roban y no aparece, se incendia totalmente o queda destruido en un choque grave. No cubre daños parciales.' },
-  3: { titulo: 'Terceros Completo Full', desc: 'Todo lo de Terceros Completo, más granizo, inundación, rotura de cristales y daños en el techo por caída de árboles. No cubre el choque con daño parcial.' },
+  3: { titulo: 'Terceros Completo Full', desc: 'Todo lo de Terceros Completo, más granizo y rotura de cristales. No cubre el choque con daño parcial.' },
   4: { titulo: 'Todo Riesgo (con franquicia)', desc: 'Cubre también el choque con daño parcial, tengas vos la culpa o no. Incluye franquicia: la parte que afrontás vos en cada siniestro.' }
 };
 // Plan recomendado + inmediata inferior (tabla acordada)
@@ -596,8 +596,8 @@ function correrRecomendador() {
     v => {
       if (v === 'rc') return terminarRecom(1);
       if (techo === 2) return terminarRecom(2, { techoNota: true });
-      preguntaRecom(2, total, 'Para tu auto, ¿te alcanza con estar cubierto si te lo roban y no aparece, se incendia totalmente o queda destruido en un choque grave? ¿O además te interesa que cubran granizo, inundación, rotura de cristales y daños en el techo por caída de árboles?',
-        [{ t: 'Con eso me alcanza (robo, incendio, destrucción total)', v: 2 }, { t: 'Quiero también granizo, cristales y esos adicionales', v: 3 }],
+      preguntaRecom(2, total, 'Para tu auto, ¿te alcanza con estar cubierto si te lo roban y no aparece, se incendia totalmente o queda destruido en un choque grave? ¿O además te interesa que cubran granizo y rotura de cristales?',
+        [{ t: 'Con eso me alcanza (robo, incendio, destrucción total)', v: 2 }, { t: 'Quiero también granizo y cristales', v: 3 }],
         base => {
           _estadoRecom.prefBase = base;
           if (techo === 3) return terminarRecom(base, {});
