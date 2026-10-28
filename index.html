@@ -189,12 +189,40 @@ section { padding-block: 34px 6px; scroll-margin-top: 64px; }
 .poll .go {
   grid-column: 1 / -1;
   display: inline-flex; justify-content: center; align-items: center; gap: 8px;
-  margin-top: 6px; padding: 12px 16px; border-radius: 12px;
-  background: var(--gold); color: var(--navy); text-decoration: none;
-  font-family: var(--display); font-weight: 900; font-stretch: 112%; letter-spacing: .06em; text-transform: uppercase; font-size: .9rem;
+  margin-top: 6px; padding: 13px 16px; border-radius: 12px; border: 0; cursor: pointer;
+  background: var(--gold); color: var(--navy);
+  font-family: var(--display); font-weight: 900; font-stretch: 112%; letter-spacing: .06em; text-transform: uppercase; font-size: .92rem;
 }
-.poll .go[aria-disabled="true"] { background: var(--panel-2); color: var(--muted); pointer-events: none; }
+.poll .go:hover { filter: brightness(1.06); }
 .poll .hint { grid-column: 1 / -1; color: var(--muted); font-size: .84rem; }
+.results { grid-column: 1 / -1; display: grid; gap: 10px; margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.res-head { display: flex; justify-content: space-between; gap: 10px; font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.res-total { color: var(--gold); font-variant-numeric: tabular-nums; }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; gap: 4px; }
+.bar-top { display: flex; justify-content: space-between; gap: 10px; font-size: .92rem; }
+.bar-top span:first-child { min-width: 0; }
+.bar-n { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.track { height: 10px; border-radius: 999px; background: var(--panel-2); overflow: hidden; }
+.fill { height: 100%; width: 0; border-radius: 999px; background: var(--muted); transition: width .6s ease; }
+.fill.lead { background: var(--coral); }
+
+/* Panel del formulario */
+body.locked { overflow: hidden; }
+.sheet { position: fixed; inset: 0; z-index: 20; display: grid; align-items: end; justify-items: center; }
+.backdrop { position: absolute; inset: 0; background: rgba(5,10,25,.72); }
+.panel {
+  position: relative; width: 100%; max-width: 600px; height: 88%;
+  background: var(--navy); border-radius: 20px 20px 0 0; border: 1px solid var(--line); border-bottom: 0;
+  display: grid; grid-template-rows: auto 1fr auto; overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+.panel-title { font-weight: 700; font-size: .95rem; min-width: 0; }
+.close { flex: none; font: inherit; font-weight: 800; cursor: pointer; border: 0; border-radius: 999px; padding: 9px 14px; background: var(--gold); color: var(--navy); }
+#formFrame { width: 100%; height: 100%; border: 0; background: #fff; }
+.panel-foot { padding: 10px 16px; color: var(--muted); font-size: .84rem; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
 
 /* Tanda */
 .ad {
@@ -341,7 +369,7 @@ html { scroll-behavior: smooth; }
     <div class="sec-head">
       <p class="eyebrow">Tu voto, en vivo</p>
       <h2>Votá</h2>
-      <p class="sub">Votás y ves el resultado de toda la clase al instante. La mesa lo comenta al aire.</p>
+      <p class="sub">Votás sin salir de esta página y el resultado de toda la clase aparece abajo, en vivo.</p>
     </div>
     <div class="polls" id="polls"></div>
   </section>
@@ -398,12 +426,33 @@ html { scroll-behavior: smooth; }
   <p>TP de Principios de Administración · IFTS N°1</p>
 </footer>
 
+
+<div class="sheet" id="formSheet" hidden>
+  <div class="backdrop" id="formBackdrop"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="panel-head">
+      <p class="panel-title" id="formTitle">Encuesta</p>
+      <button type="button" class="close" id="formClose">Listo, volver</button>
+    </div>
+    <iframe id="formFrame" title="Formulario de la encuesta" src="about:blank"></iframe>
+    <p class="panel-foot">Cuando envíes tu voto, tocá <b>Listo, volver</b> y mirá el resultado.</p>
+  </div>
+</div>
 <script>
 /* Links de las encuestas: pegar acá el link de cada formulario de Google. Vacío = botón desactivado. */
 const POLLS = [
-  { moment: "Arranque", question: "¿Alguna vez trabajaste en un lugar donde nadie veía lo que hacías?", url: "https://forms.gle/H7PG6jg7wvQjLyv27" },
-  { moment: "Cine vs. realidad · Tema 3", question: "¿Erin Brockovich funcionaría como gerente de una empresa?", url: "https://forms.gle/73CBP4dtWYL5fSji9" },
-  { moment: "Cierre", question: "¿Las organizaciones ven a las personas antes de que alguien las obligue?", url: "https://forms.gle/NWtn1d8AXCoo2aTd7" }
+  { moment: "Arranque", question: "¿Alguna vez trabajaste en un lugar donde nadie veía lo que hacías?",
+    form: "https://docs.google.com/forms/d/e/1FAIpQLScFCtPv3gGg6MPdS0cT1FyOhOgudYRzMIwr9w7DGSoTCWb0ZA/viewform",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vREedJ9oyQwK7NC5X_h7d4BhBCCrumxp2N5sfTz7yhVcCOnrRrXtCpbw3JiqMOIkZRb9sW3FFPrdaUs/pub?gid=1990450857&single=true&output=csv",
+    options: ["Sí, me pasó", "No, nunca", "Todavía no trabajé"] },
+  { moment: "Cine vs. realidad · Tema 3", question: "¿Erin Brockovich funcionaría como gerente de una empresa?",
+    form: "https://docs.google.com/forms/d/e/1FAIpQLSfJw1aIvmM7fRP5fuBaGx8XP5_6I9JfYOuQDBDWohQmCqv1ug/viewform",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTEYi3B6FXc_9HRsyfYsjMTCwiXPyl-gjGkMgIPNpKJ4m_3PRiVHGS1r-SjrF1UAMQTK4vXRi5oBUc-/pub?gid=163556739&single=true&output=csv",
+    options: ["Sí, la gente la sigue", "No, choca con todos", "Depende de la empresa"] },
+  { moment: "Cierre", question: "¿Las organizaciones ven a las personas antes de que alguien las obligue?",
+    form: "https://docs.google.com/forms/d/e/1FAIpQLScljnfLMx2iOwwPYVHgXauKazbNUPd0-ElEu4ah3IX9aK2mwg/viewform",
+    csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUDDYRj4Jez3jci2spvdAhpg4QIHMFkO1OhSY5l8KzlxvhbaO5p2qcuu_4es9GdQrDfFKTg792Na8n/pub?output=csv",
+    options: ["Sí, casi siempre", "A veces", "Casi nunca"] }
 ];
 
 const QUIZ = [
@@ -462,21 +511,114 @@ document.getElementById("resetBtn").addEventListener("click", () => { answers = 
 renderQuiz();
 
 /* ---------- Encuestas ---------- */
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) {
+      if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === ",") { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += ch;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+const pollUI = [];
+function drawResults(i, counts, total) {
+  const ui = pollUI[i];
+  ui.total.textContent = total === 1 ? "1 voto" : total + " votos";
+  ui.bars.textContent = "";
+  const max = Math.max(1, ...counts.map(c => c[1]));
+  counts.forEach(([label, n]) => {
+    const row = document.createElement("div"); row.className = "bar";
+    const top = document.createElement("div"); top.className = "bar-top";
+    const l = document.createElement("span"); l.textContent = label;
+    const v = document.createElement("span"); v.className = "bar-n";
+    v.textContent = total ? Math.round(n * 100 / total) + "% · " + n : "0";
+    top.append(l, v);
+    const track = document.createElement("div"); track.className = "track";
+    const fill = document.createElement("div"); fill.className = "fill" + (n === max && n > 0 ? " lead" : "");
+    fill.style.width = (total ? (n * 100 / total) : 0) + "%";
+    track.appendChild(fill);
+    row.append(top, track);
+    ui.bars.appendChild(row);
+  });
+}
+async function loadResults(i) {
+  const p = POLLS[i]; if (!p.csv) return;
+  try {
+    const r = await fetch(p.csv + "&t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const rows = parseCSV(await r.text()).filter(x => x.some(c => c.trim() !== ""));
+    const answers = rows.slice(1).map(x => (x[1] || "").trim()).filter(Boolean);
+    const map = new Map(p.options.map(o => [o, 0]));
+    answers.forEach(a => map.set(a, (map.get(a) || 0) + 1));
+    drawResults(i, [...map.entries()], answers.length);
+    pollUI[i].status.textContent = "Se actualiza solo";
+  } catch (e) {
+    pollUI[i].status.textContent = "No pude cargar el resultado. Reintento en unos segundos.";
+  }
+}
 (function renderPolls() {
   const box = document.getElementById("polls");
   POLLS.forEach((p, i) => {
     const c = document.createElement("article"); c.className = "poll";
     const m = document.createElement("p"); m.className = "moment"; m.textContent = "Encuesta " + (i + 1) + " · " + p.moment;
     const q = document.createElement("p"); q.className = "question"; q.textContent = p.question;
-    const a = document.createElement("a"); a.className = "go";
-    if (p.url) { a.href = p.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = "Votá acá"; }
-    else { a.setAttribute("aria-disabled", "true"); a.textContent = "Se abre durante el programa"; }
-    const h = document.createElement("p"); h.className = "hint";
-    h.textContent = p.url ? "Se abre el formulario. Al enviar, tocá \"Ver respuestas anteriores\" para ver el resultado." : "La mesa te avisa cuándo votar.";
-    c.append(m, q, a, h);
+    const btn = document.createElement("button"); btn.type = "button"; btn.className = "go"; btn.id = "vote" + i;
+    btn.textContent = "Votá acá";
+    btn.addEventListener("click", () => openForm(i));
+    const res = document.createElement("div"); res.className = "results";
+    const head = document.createElement("div"); head.className = "res-head";
+    const t = document.createElement("span"); t.textContent = "Resultado en vivo";
+    const total = document.createElement("span"); total.className = "res-total"; total.textContent = p.csv ? "Cargando…" : "";
+    head.append(t, total);
+    const bars = document.createElement("div"); bars.className = "bars";
+    const status = document.createElement("p"); status.className = "hint";
+    status.textContent = p.csv ? "" : "El resultado aparece acá durante el programa.";
+    res.append(head, bars, status);
+    c.append(m, q, btn, res);
     box.appendChild(c);
+    pollUI[i] = { total, bars, status };
+    drawResults(i, p.options.map(o => [o, 0]), 0);
+    if (!p.csv) total.textContent = "";
   });
+  const refresh = () => { if (!document.hidden) POLLS.forEach((_, i) => loadResults(i)); };
+  refresh();
+  setInterval(refresh, 8000);
+  document.addEventListener("visibilitychange", refresh);
 })();
+
+/* Formulario dentro de la página */
+const sheet = document.getElementById("formSheet");
+const frame = document.getElementById("formFrame");
+let openPoll = -1;
+function openForm(i) {
+  openPoll = i;
+  document.getElementById("formTitle").textContent = POLLS[i].question;
+  frame.src = POLLS[i].form + "?embedded=true";
+  sheet.hidden = false;
+  document.body.classList.add("locked");
+  document.getElementById("formClose").focus();
+}
+function closeForm() {
+  sheet.hidden = true;
+  frame.src = "about:blank";
+  document.body.classList.remove("locked");
+  if (openPoll >= 0) {
+    loadResults(openPoll);
+    const b = document.getElementById("vote" + openPoll); if (b) b.focus();
+  }
+  openPoll = -1;
+}
+document.getElementById("formClose").addEventListener("click", closeForm);
+document.getElementById("formBackdrop").addEventListener("click", closeForm);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !sheet.hidden) closeForm(); });
 
 /* ---------- Bloque al aire ---------- */
 (function markLive() {
